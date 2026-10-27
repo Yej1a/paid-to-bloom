@@ -470,7 +470,7 @@
         <div class="result-actions">
           <button class="cta" id="cardBtn" type="button">
             <span class="cta-main">生成工位战报</span>
-            <span class="cta-sub">3:4 竖版 · 可直接发小红书</span>
+            <span class="cta-sub">3:4 竖版 · 可保存或分享</span>
           </button>
           <button class="ghost-btn" id="retryBtn" type="button">再养一盆</button>
         </div>
@@ -488,6 +488,10 @@
             <b>你的工位战报</b>
           </div>
           <button class="close-btn" id="closeCardBtn" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="card-style-switch" id="cardStyleSwitch" aria-label="海报样式">
+          <button type="button" class="is-active" data-style="botanical" aria-pressed="true">植物图鉴</button>
+          <button type="button" data-style="monitor" aria-pressed="false">工位监控</button>
         </div>
         <div class="card-preview">
           <img id="cardImage" alt="工位战报卡，包含工位人格和本局数据">
