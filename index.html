@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#F4EFE3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="带薪养花">
+  <meta name="application-name" content="带薪养花">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="带薪养花">
+  <meta property="og:title" content="带薪养花 · 工位微园艺">
+  <meta property="og:description" content="老板回头的 0.5 秒，我假装在做表。45 秒、单手可玩的工位微园艺小游戏。">
+  <meta property="og:url" content="https://yej1a.github.io/paid-to-bloom/">
+  <meta property="og:image" content="https://yej1a.github.io/paid-to-bloom/og-cover.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="带薪养花 · 工位微园艺">
+  <meta name="twitter:description" content="老板回头的 0.5 秒，我假装在做表。45 秒、单手可玩的工位微园艺小游戏。">
+  <meta name="twitter:image" content="https://yej1a.github.io/paid-to-bloom/og-cover.png">
+  <title>带薪养花 · 工位微园艺</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="desk-bg" aria-hidden="true"></div>
+
+  <main class="app" id="app">
+    <header class="hud" data-ui>
+      <div class="brand">
+        <span class="brand-main">OFFICE BOTANY CLUB</span>
+        <span class="brand-sub">工位微园艺 · SHIFT No. 045</span>
+      </div>
+
+      <div class="timer" id="timerBox" aria-label="剩余时间">
+        <span class="timer-label">SHIFT</span>
+        <b id="timer">00:45</b>
+      </div>
+
+      <div class="hud-right">
+        <div class="hearts" id="hearts" aria-label="剩余三颗心">
+          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+        </div>
+        <button class="icon-btn" id="muteBtn" type="button" aria-label="关闭声音" title="声音开关">
+          <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-wave" d="M16 8.2c1.3 1.9 1.3 5.7 0 7.6M18.8 5.7c2.4 3.4 2.4 9.2 0 12.6"/></svg>
+          <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="stage" id="stage" aria-label="工位场景。按住屏幕浇水，老板回头前松手。">
+      <svg class="scene-art" viewBox="0 0 900 1200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <defs>
+          <pattern id="paperDots" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.1" fill="#24382C" opacity=".055"/>
+          </pattern>
+          <pattern id="deskGrain" width="86" height="44" patternUnits="userSpaceOnUse">
+            <path d="M0 12C20 7 46 16 86 9" fill="none" stroke="#A88C63" stroke-width="1.2" opacity=".22"/>
+            <path d="M0 34C26 29 58 38 86 31" fill="none" stroke="#A88C63" stroke-width="1" opacity=".14"/>
+          </pattern>
+          <pattern id="partitionLines" width="18" height="18" patternUnits="userSpaceOnUse">
+            <path d="M0 18 18 0" stroke="#F4EFE3" stroke-width="1" opacity=".14"/>
+          </pattern>
+          <clipPath id="screenClip">
+            <rect x="254" y="314" width="392" height="232" rx="4"/>
+          </clipPath>
+          <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
+            <feDropShadow dx="0" dy="15" stdDeviation="13" flood-color="#24382C" flood-opacity=".16"/>
+          </filter>
+          <filter id="tinyShadow" x="-30%" y="-30%" width="160%" height="180%">
+            <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#24382C" flood-opacity=".18"/>
+          </filter>
+        </defs>
+
+        <!-- wall + desk -->
+        <rect width="900" height="1200" fill="#EFE6D2"/>
+        <rect width="900" height="860" fill="#F4EFE3"/>
+        <rect width="900" height="1200" fill="url(#paperDots)"/>
+        <path d="M0 838h900v22H0Z" fill="#C9B38C"/>
+        <rect y="858" width="900" height="342" fill="#DCCAA8"/>
+        <rect y="858" width="900" height="342" fill="url(#deskGrain)"/>
+        <path d="M0 876h900" stroke="#C2A97D" stroke-width="2" opacity=".6"/>
+
+        <!-- wall clock -->
+        <g class="wall-clock">
+          <circle cx="126" cy="166" r="63" fill="#FAF5E8" stroke="#24382C" stroke-width="3.5"/>
+          <circle cx="126" cy="166" r="53" fill="none" stroke="#24382C" stroke-width="1" stroke-dasharray="1 9" opacity=".75"/>
+          <path d="M126 118v9M174 166h-9M126 214v-9M78 166h9" stroke="#24382C" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M126 166 126 134" stroke="#24382C" stroke-width="5" stroke-linecap="round"/>
+          <path d="M126 166 145 193" stroke="#24382C" stroke-width="4" stroke-linecap="round"/>
+          <path d="M126 166 101 156" stroke="#E56B4A" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="126" cy="166" r="5" fill="#E56B4A" stroke="#24382C" stroke-width="2"/>
+          <text x="126" y="254" text-anchor="middle" font-size="17" letter-spacing="5" fill="#24382C" font-family="Courier New, monospace">17:59</text>
+        </g>
+
+        <!-- framed botanical print -->
+        <g class="wall-print">
+          <rect x="49" y="344" width="190" height="280" fill="#E9DEC5" stroke="#24382C" stroke-width="2.5"/>
+          <rect x="59" y="354" width="170" height="260" fill="#F7F0DF" stroke="#24382C" stroke-width="1"/>
+          <text x="144" y="380" text-anchor="middle" font-family="Courier New, monospace" font-size="12" letter-spacing="2.2" fill="#24382C">OFFICE FLORA</text>
+          <text x="144" y="398" text-anchor="middle" font-family="Courier New, monospace" font-size="9" letter-spacing="1.6" fill="#6F7A63">PLATE No. 07 / 1974</text>
+          <path d="M144 554V433" stroke="#4B664C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <path d="M144 500c-28-3-45-19-46-37 25-2 43 13 46 37Z" fill="#78906B" stroke="#24382C" stroke-width="1.4"/>
+          <path d="M144 476c24-4 40-19 41-36-23-1-39 14-41 36Z" fill="#A7B49A" stroke="#24382C" stroke-width="1.4"/>
+          <g transform="translate(144 432)">
+            <ellipse cx="0" cy="-16" rx="9" ry="17" fill="#E56B4A" stroke="#24382C" stroke-width="1.3"/>
+            <ellipse cx="0" cy="16" rx="9" ry="17" fill="#E56B4A" stroke="#24382C" stroke-width="1.3"/>
+            <ellipse cx="-16" cy="0" rx="17" ry="9" fill="#F2C14E" stroke="#24382C" stroke-width="1.3"/>
+            <ellipse cx="16" cy="0" rx="17" ry="9" fill="#F2C14E" stroke="#24382C" stroke-width="1.3"/>
+            <circle cx="0" cy="0" r="8" fill="#24382C"/>
+          </g>
+          <path d="M78 586h132" stroke="#24382C" stroke-width="1" opacity=".45"/>
+          <text x="144" y="603" text-anchor="middle" font-size="9.5" letter-spacing="1" fill="#6F7A63">浇水时请保持面无表情</text>
+        </g>
+
+        <!-- boss, peeking behind the partition -->
+        <g class="boss">
+          <g class="boss-head">
+            <g class="boss-turn" id="bossTurn">
+              <ellipse cx="804" cy="506" rx="137" ry="167" fill="#24382C"/>
+              <path d="M686 558c19-57 59-89 118-89s101 32 120 89" fill="#2E4639"/>
+              <path d="M744 394c18-25 43-38 60-38s42 13 60 38" fill="none" stroke="#15241C" stroke-width="7" stroke-linecap="round"/>
+              <!-- one visible eye -->
+              <g class="boss-eye" id="bossEye">
+                <ellipse cx="806" cy="464" rx="63" ry="44" fill="#FBF6E8" stroke="#16251D" stroke-width="4"/>
+                <g class="boss-pupil" id="bossPupil">
+                  <circle cx="793" cy="469" r="21" fill="#24382C"/>
+                  <circle cx="787" cy="461" r="6.5" fill="#FBF6E8" opacity=".9"/>
+                </g>
+                <path class="boss-lid" id="bossLid" d="M743 449c35-23 92-23 127 0" fill="none" stroke="#16251D" stroke-width="5" stroke-linecap="round"/>
+                <path class="boss-brow" id="bossBrow" d="M744 414c36-18 90-18 126 0" fill="none" stroke="#16251D" stroke-width="8" stroke-linecap="round"/>
+                <path d="M771 508c22 10 48 10 70 0" fill="none" stroke="#16251D" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+              </g>
+            </g>
+          </g>
+        </g>
+
+        <!-- cubicle partition -->
+        <g class="partition">
+          <rect x="674" y="502" width="256" height="480" rx="5" fill="#70866D" stroke="#24382C" stroke-width="3"/>
+          <rect x="674" y="502" width="256" height="480" rx="5" fill="url(#partitionLines)"/>
+          <path d="M674 534h256" stroke="#556B53" stroke-width="3"/>
+          <path d="M674 930h256" stroke="#4D624C" stroke-width="3"/>
+          <rect x="694" y="566" width="106" height="91" rx="1" fill="#F2C14E" stroke="#24382C" stroke-width="1.6" transform="rotate(-2 747 611)"/>
+          <text x="747" y="594" text-anchor="middle" font-size="15" font-family="Microsoft YaHei, sans-serif" fill="#24382C" transform="rotate(-2 747 611)">18:00</text>
+          <text x="747" y="619" text-anchor="middle" font-size="15" font-family="Microsoft YaHei, sans-serif" fill="#24382C" transform="rotate(-2 747 611)">准点下班</text>
+          <text x="747" y="641" text-anchor="middle" font-size="9" font-family="Microsoft YaHei, sans-serif" fill="#8C6532" transform="rotate(-2 747 611)">不要再改了</text>
+          <g transform="rotate(3 830 714)">
+            <rect x="793" y="675" width="79" height="78" fill="#E9DEC5" stroke="#24382C" stroke-width="1.4"/>
+            <text x="832" y="701" text-anchor="middle" font-size="10" font-family="Microsoft YaHei, sans-serif" fill="#24382C">在吗？</text>
+            <path d="M807 714h50M807 729h37" stroke="#8D9B84" stroke-width="1.4"/>
+          </g>
+          <path d="M866 932v20M872 932v20M878 932v20" stroke="#24382C" stroke-width="2" opacity=".3"/>
+        </g>
+
+        <!-- monitor -->
+        <g class="monitor" filter="url(#softShadow)">
+          <ellipse cx="450" cy="848" rx="151" ry="18" fill="#24382C" opacity=".14"/>
+          <path d="M430 588h40v224h-40Z" fill="#24382C"/>
+          <path d="M351 826c0-16 45-26 99-26s99 10 99 26-45 24-99 24-99-8-99-24Z" fill="#24382C"/>
+          <rect x="228" y="288" width="444" height="308" rx="24" fill="#24382C" stroke="#18281F" stroke-width="3"/>
+          <rect x="248" y="308" width="404" height="243" rx="6" fill="#0F1E16"/>
+          <g clip-path="url(#screenClip)">
+            <rect x="254" y="314" width="392" height="232" fill="#FAF7EC"/>
+            <rect x="254" y="314" width="392" height="30" fill="#35533D"/>
+            <circle cx="270" cy="329" r="4" fill="#E56B4A"/>
+            <circle cx="284" cy="329" r="4" fill="#F2C14E"/>
+            <circle cx="298" cy="329" r="4" fill="#B9D4D7"/>
+            <text x="316" y="334" font-size="10.5" font-family="Microsoft YaHei, sans-serif" fill="#F4EFE3">Q4_方案_最终版_真的最终.xlsx</text>
+            <!-- spreadsheet grid -->
+            <rect x="254" y="344" width="392" height="22" fill="#E8E2D2"/>
+            <g stroke="#C9C3B2" stroke-width=".8">
+              <path d="M254 344h392M254 366h392M254 388h392M254 410h392M254 432h392M254 454h392M254 476h392M254 498h392M254 520h392"/>
+              <path d="M254 344v198M286 344v198M348 344v198M410 344v198M472 344v198M534 344v198M596 344v198M646 344v198"/>
+            </g>
+            <g font-family="Courier New, monospace" font-size="8" fill="#7D8574">
+              <text x="262" y="358">A</text><text x="324" y="358">B</text><text x="386" y="358">C</text><text x="448" y="358">D</text><text x="510" y="358">E</text><text x="572" y="358">F</text>
+            </g>
+            <g font-family="Microsoft YaHei, sans-serif" font-size="7.5" fill="#4C5749">
+              <text x="262" y="381">季度目标</text><text x="324" y="381">负责人</text><text x="386" y="381">进度</text><text x="448" y="381">备注</text><text x="510" y="381">状态</text>
+              <text x="262" y="403">增长</text><text x="324" y="403">我</text><text x="386" y="403">68%</text><text x="448" y="403">再改一版</text><text x="510" y="403">进行中</text>
+              <text x="262" y="425">降本</text><text x="324" y="425">还是我</text><text x="386" y="425">42%</text><text x="448" y="425">先放着</text><text x="510" y="425">进行中</text>
+              <text x="262" y="447">增效</text><text x="324" y="447">我本人</text><text x="386" y="447">12%</text><text x="448" y="447">花在长</text><text x="510" y="447">暗中</text>
+              <text x="262" y="469">复盘</text><text x="324" y="469">—</text><text x="386" y="469">—</text><text x="448" y="469">18:00 后</text><text x="510" y="469">未开始</text>
+              <text x="262" y="491">预算</text><text x="324" y="491">—</text><text x="386" y="491">—</text><text x="448" y="491">买土</text><text x="510" y="491">已批</text>
+            </g>
+            <rect x="410" y="432" width="62" height="22" fill="#6F8F63" fill-opacity=".25" stroke="#3E5C43" stroke-width="1.4"/>
+            <rect x="254" y="520" width="392" height="26" fill="#E8E2D2"/>
+            <path d="M254 520h392" stroke="#B8B09D" stroke-width="1"/>
+            <rect x="266" y="526" width="72" height="15" fill="#FAF7EC" stroke="#B8B09D" stroke-width=".8"/>
+            <text x="272" y="537" font-size="8" font-family="Microsoft YaHei, sans-serif" fill="#3E5C43">工作表 1</text>
+            <text x="350" y="537" font-size="8" font-family="Courier New, monospace" fill="#7D8574">+</text>
+            <rect id="screenFlash" x="254" y="314" width="392" height="232" fill="#F7F1DE"/>
+          </g>
+          <text x="236" y="610" font-family="Courier New, monospace" font-size="9" letter-spacing="2" fill="#A7B49A">ACME / 14&quot;</text>
+          <circle cx="650" cy="603" r="4" fill="#E56B4A"/>
+          <!-- sticky note on monitor -->
+          <g transform="rotate(3 600 302)" filter="url(#tinyShadow)">
+            <path d="M540 250h116v88h-116Z" fill="#F2C14E" stroke="#24382C" stroke-width="1.5"/>
+            <path d="M540 250h116v10H540Z" fill="#E7B33B"/>
+            <text x="598" y="279" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#24382C">18:00</text>
+            <text x="598" y="299" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#24382C">准点下班</text>
+            <text x="598" y="319" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="8.5" fill="#7C5C2C">这次是真的</text>
+          </g>
+        </g>
+
+        <!-- desk mat and keyboard -->
+        <g class="desk-items">
+          <rect x="230" y="925" width="440" height="231" rx="14" fill="#2E4738" stroke="#20342A" stroke-width="2"/>
+          <rect x="243" y="938" width="414" height="205" rx="8" fill="none" stroke="#7F9678" stroke-width="1" stroke-dasharray="5 7" opacity=".55"/>
+          <g transform="translate(66 954) rotate(-3)" opacity=".95">
+            <rect width="134" height="66" rx="6" fill="#EFE6D2" stroke="#24382C" stroke-width="1.6"/>
+            <g fill="#AEB8A3">
+              <rect x="10" y="10" width="12" height="10" rx="2"/><rect x="27" y="10" width="12" height="10" rx="2"/><rect x="44" y="10" width="12" height="10" rx="2"/><rect x="61" y="10" width="12" height="10" rx="2"/><rect x="78" y="10" width="12" height="10" rx="2"/><rect x="95" y="10" width="12" height="10" rx="2"/><rect x="112" y="10" width="12" height="10" rx="2"/>
+              <rect x="10" y="26" width="12" height="10" rx="2"/><rect x="27" y="26" width="12" height="10" rx="2"/><rect x="44" y="26" width="12" height="10" rx="2"/><rect x="61" y="26" width="12" height="10" rx="2"/><rect x="78" y="26" width="12" height="10" rx="2"/><rect x="95" y="26" width="12" height="10" rx="2"/><rect x="112" y="26" width="12" height="10" rx="2"/>
+              <rect x="10" y="42" width="12" height="10" rx="2"/><rect x="27" y="42" width="12" height="10" rx="2"/><rect x="44" y="42" width="12" height="10" rx="2"/><rect x="61" y="42" width="12" height="10" rx="2"/><rect x="78" y="42" width="54" height="10" rx="2"/>
+            </g>
+            <text x="67" y="64" text-anchor="middle" font-family="Courier New, monospace" font-size="6" letter-spacing="1.5" fill="#8E947F">PRODUCTIVITY</text>
+          </g>
+          <g transform="translate(694 990) rotate(4)" filter="url(#tinyShadow)">
+            <rect width="93" height="118" fill="#F7F0DF" stroke="#24382C" stroke-width="1.5"/>
+            <text x="12" y="22" font-family="Microsoft YaHei, sans-serif" font-size="8" fill="#E56B4A">NOTES</text>
+            <path d="M12 34h63M12 46h54M12 58h63M12 70h40M12 82h58M12 94h47" stroke="#9EA78F" stroke-width="1.3"/>
+            <path d="M66 26c10 3 13 9 9 17" fill="none" stroke="#E56B4A" stroke-width="1.6"/>
+          </g>
+        </g>
+
+        <!-- plant in a mug -->
+        <g class="plant-scene">
+          <ellipse cx="450" cy="1121" rx="123" ry="22" fill="#1B2E23" opacity=".22"/>
+
+          <g id="plantSway">
+            <g id="plantGrowth" transform="translate(450 992) scale(.34) translate(-450 -992)">
+              <path class="stem" d="M450 992C430 908 472 830 446 726" fill="none" stroke="#3E5C43" stroke-width="10" stroke-linecap="round"/>
+              <path class="stem-light" d="M450 986C436 913 466 844 448 760" fill="none" stroke="#78906B" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>
+              <!-- seed leaves -->
+              <g id="seedLeaves">
+                <path d="M445 846c-31-4-51-22-50-43 28-2 49 16 50 43Z" fill="#7D9A6E" stroke="#24382C" stroke-width="2"/>
+                <path d="M451 838c32-5 51-24 49-45-27-1-48 17-49 45Z" fill="#9BB289" stroke="#24382C" stroke-width="2"/>
+              </g>
+              <g id="sproutFace">
+                <circle cx="436" cy="815" r="2.7" fill="#24382C"/>
+                <circle cx="456" cy="815" r="2.7" fill="#24382C"/>
+                <path d="M440 824c4 3 8 3 12 0" fill="none" stroke="#24382C" stroke-width="2" stroke-linecap="round"/>
+                <ellipse cx="430" cy="820" rx="4" ry="2" fill="#E56B4A" opacity=".35"/>
+                <ellipse cx="462" cy="820" rx="4" ry="2" fill="#E56B4A" opacity=".35"/>
+              </g>
+              <g id="leaf1" class="leaf">
+                <path d="M442 902c-43-7-70-37-69-66 38-2 68 26 69 66Z" fill="#6F8F63" stroke="#24382C" stroke-width="2.4"/>
+                <path d="M438 897c-21-18-38-32-57-51" fill="none" stroke="#3E5C43" stroke-width="1.6" opacity=".7"/>
+              </g>
+              <g id="leaf2" class="leaf">
+                <path d="M452 856c42-10 66-39 62-69-37 1-63 30-62 69Z" fill="#7F9C6E" stroke="#24382C" stroke-width="2.4"/>
+                <path d="M456 851c19-20 34-35 51-54" fill="none" stroke="#3E5C43" stroke-width="1.6" opacity=".7"/>
+              </g>
+              <g id="leaf3" class="leaf">
+                <path d="M442 810c-38-6-63-30-63-57 34-2 60 23 63 57Z" fill="#A7B49A" stroke="#24382C" stroke-width="2.3"/>
+                <path d="M439 806c-20-16-35-29-51-43" fill="none" stroke="#4E6B4C" stroke-width="1.5" opacity=".65"/>
+              </g>
+              <g id="leaf4" class="leaf">
+                <path d="M451 770c34-8 56-31 55-56-31 0-54 24-55 56Z" fill="#6F8F63" stroke="#24382C" stroke-width="2.3"/>
+                <path d="M454 766c16-16 30-29 44-44" fill="none" stroke="#3E5C43" stroke-width="1.5" opacity=".65"/>
+              </g>
+
+              <!-- flower -->
+              <g id="flowerPetals">
+                <g class="petal petal-a"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#E56B4A" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-b" transform="rotate(45 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#F2C14E" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-c" transform="rotate(90 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#E56B4A" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-d" transform="rotate(135 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#F2C14E" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-e" transform="rotate(180 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#E56B4A" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-f" transform="rotate(225 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#F2C14E" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-g" transform="rotate(270 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#E56B4A" stroke="#24382C" stroke-width="2"/></g>
+                <g class="petal petal-h" transform="rotate(315 446 710)"><ellipse cx="446" cy="660" rx="24" ry="48" fill="#F2C14E" stroke="#24382C" stroke-width="2"/></g>
+              </g>
+              <g id="budGroup">
+                <path d="M446 654c-29 19-42 45-38 70 4 26 20 42 39 42 20 0 35-16 39-42 4-25-9-51-40-70Z" fill="#8FA77D" stroke="#24382C" stroke-width="2.4"/>
+                <path d="M446 664v92" stroke="#4E6B4C" stroke-width="1.6" opacity=".7"/>
+                <path d="M410 706c-16 2-28 12-31 26 15 4 28-1 36-12" fill="#6F8F63" stroke="#24382C" stroke-width="1.6"/>
+              </g>
+
+              <g id="plantFace">
+                <ellipse cx="446" cy="712" rx="34" ry="32" fill="#F2C14E" stroke="#24382C" stroke-width="2.2"/>
+                <g class="face-eyes">
+                  <circle cx="434" cy="705" r="3.1" fill="#24382C"/>
+                  <circle cx="458" cy="705" r="3.1" fill="#24382C"/>
+                </g>
+                <g class="face-happy">
+                  <path d="M429 705c3-4 7-4 10 0M453 705c3-4 7-4 10 0" fill="none" stroke="#24382C" stroke-width="2.2" stroke-linecap="round"/>
+                </g>
+                <path d="M438 721c5 5 11 5 16 0" fill="none" stroke="#24382C" stroke-width="2.2" stroke-linecap="round"/>
+                <ellipse cx="427" cy="716" rx="5" ry="2.6" fill="#E56B4A" opacity=".42"/>
+                <ellipse cx="465" cy="716" rx="5" ry="2.6" fill="#E56B4A" opacity=".42"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- mug -->
+          <g class="mug">
+            <path d="M535 1000c52-5 64 73 6 84" fill="none" stroke="#24382C" stroke-width="15" stroke-linecap="round"/>
+            <path d="M535 1000c52-5 64 73 6 84" fill="none" stroke="#F7F1E1" stroke-width="9" stroke-linecap="round"/>
+            <path d="M362 986 373 1102c0 13 34 23 77 23s77-10 77-23L538 986Z" fill="#F7F1E1" stroke="#24382C" stroke-width="3"/>
+            <ellipse cx="450" cy="986" rx="88" ry="21" fill="#3B2E21" stroke="#24382C" stroke-width="3"/>
+            <ellipse cx="450" cy="986" rx="76" ry="15" fill="#57442E"/>
+            <path d="M372 1028c31 10 123 11 155 0" fill="none" stroke="#D8CDB6" stroke-width="1.4"/>
+            <rect x="388" y="1041" width="124" height="42" rx="3" fill="#24382C"/>
+            <text x="450" y="1069" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="22" letter-spacing="9" fill="#F4EFE3">摸鱼</text>
+            <text x="450" y="1096" text-anchor="middle" font-family="Courier New, monospace" font-size="7" letter-spacing="3" fill="#9C8B72">PAID TO BLOOM</text>
+            <path d="M390 1002c10 7 21 10 33 11" fill="none" stroke="#FFFDF6" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+          </g>
+
+          <!-- tiny watering can -->
+          <g id="wateringCan">
+            <path d="M282 744c0-27 20-45 45-45s45 18 45 45" fill="none" stroke="#24382C" stroke-width="10" stroke-linecap="round"/>
+            <path d="M282 744c0-27 20-45 45-45s45 18 45 45" fill="none" stroke="#B9D4D7" stroke-width="4" stroke-linecap="round"/>
+            <path d="M263 780c-6-23 9-42 33-46 25-4 47 10 50 34 2 21-12 38-34 41-23 4-44-8-49-29Z" fill="#B9D4D7" stroke="#24382C" stroke-width="3"/>
+            <path d="M338 787c24 4 44 20 58 43l-16 10c-12-18-26-28-46-33Z" fill="#B9D4D7" stroke="#24382C" stroke-width="3"/>
+            <ellipse cx="399" cy="838" rx="8" ry="14" transform="rotate(43 399 838)" fill="#B9D4D7" stroke="#24382C" stroke-width="2.4"/>
+            <path d="M419 849c8 6 14 12 18 19" fill="none" stroke="#24382C" stroke-width="2" opacity=".45"/>
+            <path d="M285 817c12 7 28 8 42 2" fill="none" stroke="#24382C" stroke-width="2" opacity=".45"/>
+            <g id="waterStream" stroke="#7FB3BC" stroke-linecap="round" fill="none">
+              <path d="M403 858c12 24 18 55 17 89" stroke-width="2.5" stroke-dasharray="3 13" class="water-line"/>
+              <path d="M419 858c8 30 10 61 4 91" stroke-width="2" stroke-dasharray="2 15" class="water-line water-line-b"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- bloom sparkles -->
+        <g id="svgSparkles">
+          <path class="spark s1" d="M354 700l0-20M344 710l-15 0M462 646l12-12" stroke="#F2C14E" stroke-width="4" stroke-linecap="round"/>
+          <path class="spark s2" d="M548 724l18 4M532 660l12-14M374 776l-12 12" stroke="#E56B4A" stroke-width="3.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+
+      <div class="stage-shade" aria-hidden="true"></div>
+      <div class="warning-vignette" id="warningVignette" aria-hidden="true"></div>
+      <div class="caught-flash" id="caughtFlash" aria-hidden="true"></div>
+
+      <div class="boss-bubble" id="bossBubble" aria-live="polite">
+        <div class="boss-name"><span class="status-dot"></span>老板</div>
+        <div class="boss-line" id="bossLine">在吗？</div>
+        <div class="warn-meter" id="warnMeter"><span id="warnFill"></span><i class="perfect-zone"></i></div>
+        <div class="warn-note">最后红格松手 = 秒切</div>
+      </div>
+
+      <div class="perfect-stamp" id="perfectStamp" aria-hidden="true">
+        <span class="stamp-small">PERFECT SWITCH</span>
+        <b>秒切！</b>
+        <span class="stamp-score">演技 +180</span>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <div class="mode-tag" id="modeTag">
+        <span class="mode-dot"></span>
+        <span id="modeText">EXCEL · Q4_方案_最终版_真的最终.xlsx</span>
+      </div>
+
+      <div class="bloom-burst" id="bloomBurst" aria-hidden="true">
+        <span>开花了</span>
+        <small>老板没发现</small>
+      </div>
+    </section>
+
+    <footer class="console" id="console">
+      <div class="growth-head">
+        <span class="growth-label">生长 / GROWTH <b id="growthPct">0%</b></span>
+        <span class="stage-name" id="stageName">种子</span>
+      </div>
+      <div class="growth-track">
+        <div class="growth-fill" id="growthFill"></div>
+        <div class="growth-thresholds" aria-hidden="true"><i style="left:25%"></i><i style="left:55%"></i><i style="left:90%"></i></div>
+        <div class="growth-marker" id="growthMarker">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C10 4 5 9 5 15c0 3 2 5 5 5 6 0 10-6 10-16Z"/><path d="M5 20c2-6 6-9 11-11"/></svg>
+        </div>
+      </div>
+      <div class="stage-labels" aria-hidden="true"><span>发芽</span><span>长叶</span><span>花苞</span><span>开花</span></div>
+      <div class="hold-hint" id="holdHint">
+        <span class="hold-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M11 15V8.5a2.5 2.5 0 0 1 5 0V14"/><path d="M16 13V7.5a2.5 2.5 0 0 1 5 0V15"/><path d="M21 14.5v-3a2.5 2.5 0 0 1 5 0V19c0 6-4 10-10 10h-1c-3 0-5-1.5-7-4l-3.8-5.2a2.2 2.2 0 0 1 3.4-2.7L11 20"/></svg></span>
+        <span class="hold-copy">
+          <b id="holdStrong">按住屏幕 · 浇水</b>
+          <small id="holdSmall">老板回头前松手，切回 Excel</small>
+        </span>
+        <span class="hold-bar"><i id="holdBarFill"></i></span>
+      </div>
+    </footer>
+
+    <!-- start -->
+    <div class="screen start-screen is-on" id="startScreen">
+      <div class="start-card">
+        <div class="card-rule"><span>OFFICE BOTANY CLUB</span><span>SHIFT No. 045</span></div>
+
+        <div class="start-art-wrap">
+          <svg class="start-art" viewBox="0 0 280 138" aria-hidden="true">
+            <rect x="28" y="18" width="88" height="64" rx="3" fill="#FAF7EC" stroke="#24382C" stroke-width="2" transform="rotate(-4 72 50)"/>
+            <g transform="rotate(-4 72 50)" stroke="#C9C3B2" stroke-width=".8">
+              <path d="M38 34h68M38 46h68M38 58h68M58 26v48M80 26v48"/>
+            </g>
+            <rect x="52" y="44" width="20" height="10" fill="#6F8F63" opacity=".3" transform="rotate(-4 72 50)"/>
+            <ellipse cx="144" cy="124" rx="48" ry="8" fill="#24382C" opacity=".12"/>
+            <path d="M113 88 118 126c0 6 13 10 27 10s27-4 27-10l5-38Z" fill="#F7F1E1" stroke="#24382C" stroke-width="2.2"/>
+            <ellipse cx="145" cy="88" rx="32" ry="7" fill="#57442E" stroke="#24382C" stroke-width="2"/>
+            <path d="M145 88c-8-22 5-36 1-52" fill="none" stroke="#3E5C43" stroke-width="4" stroke-linecap="round"/>
+            <path d="M144 63c-18-2-28-13-28-24 16-1 27 9 28 24Z" fill="#7D9A6E" stroke="#24382C" stroke-width="1.6"/>
+            <path d="M146 51c16-3 25-13 24-23-14 0-24 9-24 23Z" fill="#A7B49A" stroke="#24382C" stroke-width="1.6"/>
+            <g transform="translate(146 29)">
+              <ellipse cx="0" cy="-10" rx="6" ry="12" fill="#E56B4A" stroke="#24382C" stroke-width="1.4"/>
+              <ellipse cx="10" cy="0" rx="12" ry="6" fill="#F2C14E" stroke="#24382C" stroke-width="1.4"/>
+              <ellipse cx="-10" cy="0" rx="12" ry="6" fill="#F2C14E" stroke="#24382C" stroke-width="1.4"/>
+              <circle cx="0" cy="0" r="7" fill="#F2C14E" stroke="#24382C" stroke-width="1.4"/>
+              <path d="M-3 0h.1M3 0h.1M-2 3c1.5 1.5 3 1.5 4.5 0" stroke="#24382C" stroke-width="1.2" stroke-linecap="round"/>
+            </g>
+            <circle cx="232" cy="45" r="27" fill="#24382C"/>
+            <ellipse cx="232" cy="43" rx="16" ry="11" fill="#FBF6E8"/>
+            <circle cx="228" cy="44" r="5.4" fill="#24382C"/>
+            <path d="M216 31c10-5 22-5 32 0" fill="none" stroke="#16251D" stroke-width="3.2" stroke-linecap="round"/>
+            <text x="218" y="105" font-family="Courier New, monospace" font-size="8" letter-spacing="1.5" fill="#6F7A63">在吗？</text>
+            <path d="M185 22c8 2 13 7 15 15" fill="none" stroke="#E56B4A" stroke-width="1.5"/>
+          </svg>
+          <span class="art-stamp">PAID<br>TO<br>BLOOM</span>
+        </div>
+
+        <p class="eyebrow">一个 45 秒的工位微园艺</p>
+        <h1 class="game-title">带薪<span>养花</span></h1>
+        <p class="tagline">老板回头的 <mark>0.5 秒</mark>，<br>我假装在做表。</p>
+
+        <div class="rules">
+          <div class="rule"><b>按住</b><span>浇水</span></div>
+          <div class="rule"><b>松手</b><span>切 Excel</span></div>
+          <div class="rule"><b>红框</b><span>老板来了</span></div>
+        </div>
+
+        <button class="cta" id="startBtn" type="button">
+          <span class="cta-main">开始上班</span>
+          <span class="cta-sub">45s · 单手 · 一盆花</span>
+        </button>
+
+        <p class="fineprint"><span id="shiftCount">今日第 1 盆</span> · 没有排行榜，也没有登录</p>
+      </div>
+    </div>
+
+    <!-- result -->
+    <div class="screen result-screen" id="resultScreen" hidden>
+      <div class="result-sheet">
+        <div class="card-rule"><span>SHIFT REPORT</span><span id="resultDate">2026.10.27</span></div>
+
+        <div class="result-top">
+          <div>
+            <p class="eyebrow">你的工位人格</p>
+            <h2 id="personaTitle">天选摸鱼圣体</h2>
+          </div>
+          <div class="grade-stamp" id="resultGrade">S</div>
+        </div>
+
+        <p class="result-desc" id="personaDesc"></p>
+
+        <div class="stats" id="stats">
+          <div class="stat"><span>摸鱼值</span><b id="statScore">0</b></div>
+          <div class="stat"><span>开花用时</span><b id="statTime">—</b></div>
+          <div class="stat"><span>完美切屏</span><b id="statPerfect">0</b></div>
+          <div class="stat"><span>被抓包</span><b id="statCaught">0</b></div>
+        </div>
+
+        <blockquote id="quoteText">工作可以明天再做，花今天必须开。</blockquote>
+
+        <div class="result-actions">
+          <button class="cta" id="cardBtn" type="button">
+            <span class="cta-main">生成工位战报</span>
+            <span class="cta-sub">3:4 竖版 · 可直接发小红书</span>
+          </button>
+          <button class="ghost-btn" id="retryBtn" type="button">再养一盆</button>
+        </div>
+
+        <p class="fineprint">这张战报不发排行榜，只发给你自己。</p>
+      </div>
+    </div>
+
+    <!-- share card -->
+    <div class="screen card-screen" id="cardScreen" hidden>
+      <div class="card-modal">
+        <div class="card-modal-head">
+          <div>
+            <span class="modal-kicker">SHIFT REPORT</span>
+            <b>你的工位战报</b>
+          </div>
+          <button class="close-btn" id="closeCardBtn" type="button" aria-label="关闭">×</button>
+        </div>
+        <div class="card-preview">
+          <img id="cardImage" alt="工位战报卡，包含工位人格和本局数据">
+        </div>
+        <p class="card-tip">长按图片可直接保存，或点下面的按钮。</p>
+        <div class="card-actions">
+          <button class="cta compact" id="shareBtn" type="button"><span class="cta-main">保存 / 分享战报</span></button>
+          <button class="ghost-btn compact" id="copyBtn" type="button">复制文案</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sr-only" id="srStatus" aria-live="assertive"></div>
+  </main>
+
+  <script src="game.js" defer></script>
+  <script src="card.js" defer></script>
+</body>
+</html>
