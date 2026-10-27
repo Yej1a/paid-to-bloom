@@ -9,7 +9,7 @@
 **https://yej1a.github.io/paid-to-bloom/**
 
 iPhone：Safari 打开 → 分享 → 添加到主屏幕。  
-Android：直接浏览器打开，也可以下载 [Android APK](download/paid-to-bloom-v1.0.apk)。
+Android：直接浏览器打开，也可以下载 [Android APK v1.1](download/paid-to-bloom-v1.1.apk)。
 
 ## 玩法
 
