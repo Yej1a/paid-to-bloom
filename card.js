@@ -784,22 +784,582 @@
     drawSpacedText(ctx, "WORK CAN WAIT. THE FLOWER CAN'T.", 1000, 1373, 1.1, "right");
   }
 
-  function render(result) {
-    seed = 20261027 + (result.score || 0);
+  function drawMonitorBackground(ctx) {
+    ctx.fillStyle = "#111F18";
+    ctx.fillRect(0, 0, W, H);
+
+    const glow = ctx.createRadialGradient(540, 540, 80, 540, 620, 850);
+    glow.addColorStop(0, "rgba(83, 123, 91, 0.24)");
+    glow.addColorStop(0.55, "rgba(21, 45, 32, 0.08)");
+    glow.addColorStop(1, "rgba(4, 12, 8, 0.55)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    for (let i = 0; i < 4200; i += 1) {
+      const x = random() * W;
+      const y = random() * H;
+      ctx.fillStyle = `rgba(244,239,227,${random() * 0.035})`;
+      ctx.beginPath();
+      ctx.arc(x, y, random() * 1.1 + 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = "rgba(244,239,227,0.035)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= W; x += 60) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= H; y += 60) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(W, y);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    for (let y = 0; y < H; y += 5) {
+      ctx.fillRect(0, y, W, 1);
+    }
+
+    ctx.strokeStyle = C.cream;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(38, 38, W - 76, H - 76);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(244,239,227,0.36)";
+    ctx.strokeRect(50, 50, W - 100, H - 100);
+
+    const marks = [
+      [38, 38, 1, 1],
+      [W - 38, 38, -1, 1],
+      [38, H - 38, 1, -1],
+      [W - 38, H - 38, -1, -1]
+    ];
+    ctx.strokeStyle = C.coral;
+    ctx.lineWidth = 2;
+    marks.forEach(([x, y, dx, dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(x + dx * 30, y);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x, y + dy * 30);
+      ctx.stroke();
+    });
+  }
+
+  function drawMonitorHeader(ctx, result) {
+    setFont(ctx, 21, MONO, "700");
+    ctx.fillStyle = C.cream;
+    ctx.textAlign = "left";
+    drawSpacedText(ctx, "OFFICE CAM 03", 80, 108, 4.2);
+
+    ctx.fillStyle = C.coral;
+    ctx.beginPath();
+    ctx.arc(864, 102, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(229,107,74,0.45)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(864, 102, 13, 0, Math.PI * 2);
+    ctx.stroke();
+    setFont(ctx, 18, MONO, "700");
+    ctx.fillStyle = C.coral;
+    ctx.fillText("REC", 886, 109);
+
+    setFont(ctx, 18, MONO, "700");
+    ctx.fillStyle = C.cream;
+    ctx.textAlign = "right";
+    ctx.fillText("17:59:59", 1000, 140);
+
+    setFont(ctx, 60, SERIF, "700");
+    ctx.fillStyle = C.cream;
+    ctx.textAlign = "left";
+    ctx.fillText("工位监控", 78, 212);
+
+    setFont(ctx, 16, MONO, "400");
+    ctx.fillStyle = C.sageLight;
+    drawSpacedText(ctx, "MOTION REPORT / SHIFT 045", 82, 242, 1.8);
+
+    ctx.textAlign = "right";
+    setFont(ctx, 17, MONO, "400");
+    ctx.fillStyle = C.sageLight;
+    ctx.fillText(result.dateText, 1000, 190);
+    ctx.fillText("FRI / 17:59", 1000, 214);
+
+    ctx.strokeStyle = "rgba(229,107,74,0.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(78, 258);
+    ctx.lineTo(1000, 258);
+    ctx.stroke();
+  }
+
+  function drawMonitorSpreadsheet(ctx, x, y, width, height) {
+    ctx.fillStyle = "#0A1510";
+    roundRect(ctx, x, y, width, height, 9);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(244,239,227,0.35)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = "#A9BDA7";
+    roundRect(ctx, x + 10, y + 10, width - 20, height - 20, 4);
+    ctx.fill();
+
+    ctx.fillStyle = "#425E4A";
+    ctx.fillRect(x + 10, y + 10, width - 20, 22);
+    ctx.fillStyle = C.cream;
+    setFont(ctx, 8.5, MONO, "700");
+    ctx.textAlign = "left";
+    ctx.fillText("Q4 / EXCEL / ACTIVE", x + 18, y + 25);
+
+    ctx.strokeStyle = "rgba(36,56,44,0.24)";
+    ctx.lineWidth = 0.8;
+    for (let i = 1; i < 7; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(x + 10 + i * 40, y + 32);
+      ctx.lineTo(x + 10 + i * 40, y + height - 10);
+      ctx.stroke();
+    }
+    for (let i = 1; i < 5; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(x + 10, y + 32 + i * 28);
+      ctx.lineTo(x + width - 10, y + 32 + i * 28);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "rgba(78,107,76,0.24)";
+    ctx.fillRect(x + 90, y + 88, 40, 28);
+    ctx.strokeStyle = "#35533D";
+    ctx.strokeRect(x + 90, y + 88, 40, 28);
+
+    setFont(ctx, 7, SANS, "400");
+    ctx.fillStyle = "#3B4D3C";
+    ctx.fillText("增长", x + 20, y + 52);
+    ctx.fillText("我", x + 60, y + 52);
+    ctx.fillText("68%", x + 100, y + 52);
+    ctx.fillText("再改一版", x + 146, y + 52);
+    ctx.fillText("花在长", x + 100, y + 108);
+  }
+
+  function drawMonitorBoss(ctx) {
+    ctx.save();
+    ctx.fillStyle = "#08130D";
+    ctx.beginPath();
+    ctx.arc(940, 424, 96, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(244,239,227,0.88)";
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(887, 342);
+    ctx.quadraticCurveTo(940, 320, 993, 342);
+    ctx.stroke();
+
+    ctx.fillStyle = "#E9E2D0";
+    ctx.strokeStyle = "#0A1510";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(940, 390, 47, 33, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = C.coral;
+    ctx.beginPath();
+    ctx.arc(951, 394, 17, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#101B14";
+    ctx.beginPath();
+    ctx.arc(951, 394, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.beginPath();
+    ctx.arc(946, 388, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(244,239,227,0.55)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(909, 408);
+    ctx.quadraticCurveTo(940, 418, 971, 408);
+    ctx.stroke();
+    ctx.restore();
+
+    // cubicle partition in front
+    ctx.fillStyle = "#354D3C";
+    ctx.fillRect(760, 478, 260, 432);
+    ctx.strokeStyle = "rgba(244,239,227,0.24)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(760, 478, 260, 432);
+    ctx.strokeStyle = "rgba(244,239,227,0.08)";
+    ctx.lineWidth = 1;
+    for (let i = -400; i < 300; i += 18) {
+      ctx.beginPath();
+      ctx.moveTo(760 + i, 910);
+      ctx.lineTo(760 + i + 260, 478);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "#1A2B20";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(760, 510);
+    ctx.lineTo(1020, 510);
+    ctx.stroke();
+
+    // sticky note
+    ctx.save();
+    ctx.translate(796, 542);
+    ctx.rotate(-0.03);
+    ctx.fillStyle = C.butter;
+    ctx.strokeStyle = "#0A1510";
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(0, 0, 96, 84);
+    ctx.strokeRect(0, 0, 96, 84);
+    setFont(ctx, 13, SANS, "700");
+    ctx.fillStyle = "#24382C";
+    ctx.textAlign = "center";
+    ctx.fillText("18:00", 48, 27);
+    ctx.fillText("准点下班", 48, 47);
+    setFont(ctx, 7.5, SANS, "400");
+    ctx.fillStyle = "#7C5C2C";
+    ctx.fillText("这次是真的", 48, 66);
+    ctx.restore();
+  }
+
+  function drawMonitorScene(ctx, result) {
+    const x = 60;
+    const y = 270;
+    const width = 960;
+    const height = 640;
+
+    ctx.save();
+    roundRect(ctx, x, y, width, height, 4);
+    ctx.clip();
+
+    ctx.fillStyle = "#1D3025";
+    ctx.fillRect(x, y, width, 500);
+    ctx.fillStyle = "#342A20";
+    ctx.fillRect(x, y + 500, width, 140);
+    ctx.fillStyle = "#5C4A35";
+    ctx.fillRect(x, y + 500, width, 7);
+
+    ctx.strokeStyle = "rgba(10,21,16,0.18)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 7; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(x, y + 540 + i * 15);
+      ctx.bezierCurveTo(x + 260, y + 532 + i * 15, x + 680, y + 548 + i * 15, x + width, y + 538 + i * 15);
+      ctx.stroke();
+    }
+
+    drawMonitorSpreadsheet(ctx, 94, 355, 320, 218);
+    drawMonitorBoss(ctx);
+
+    // speech bubble
+    ctx.save();
+    ctx.translate(690, 292);
+    ctx.rotate(0.015);
+    ctx.fillStyle = "#F1EAD8";
+    ctx.strokeStyle = "#0A1510";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 0, 0, 130, 62, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(99, 62);
+    ctx.lineTo(116, 78);
+    ctx.lineTo(122, 62);
+    ctx.fill();
+    ctx.stroke();
+    setFont(ctx, 24, SERIF, "700");
+    ctx.fillStyle = "#24382C";
+    ctx.textAlign = "left";
+    ctx.fillText("在吗？", 15, 41);
+    ctx.restore();
+
+    // desk mat
+    ctx.fillStyle = "#101D15";
+    ctx.strokeStyle = "rgba(244,239,227,0.34)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 342, 690, 396, 164, 9);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(244,239,227,0.17)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 8]);
+    roundRect(ctx, 354, 702, 372, 140, 5);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "rgba(0,0,0,0.42)";
+    ctx.beginPath();
+    ctx.ellipse(540, 824, 106, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    drawPlant(ctx, 540, 735, {
+      bloom: result.bloomed,
+      growth: result.growth,
+      wilt: !result.bloomed
+    });
+    drawMug(ctx, 540, 735, 0.94);
+
+    // low-light tint
+    ctx.fillStyle = "rgba(5,24,15,0.18)";
+    ctx.fillRect(x, y, width, height);
+
+    const lamp = ctx.createRadialGradient(540, 610, 80, 540, 610, 390);
+    lamp.addColorStop(0, "rgba(244,239,227,0.12)");
+    lamp.addColorStop(0.52, "rgba(244,239,227,0.03)");
+    lamp.addColorStop(1, "rgba(0,0,0,0.2)");
+    ctx.fillStyle = lamp;
+    ctx.fillRect(x, y, width, height);
+
+    // scanlines and feed grain
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
+    for (let sy = y; sy < y + height; sy += 5) {
+      ctx.fillRect(x, sy, width, 1);
+    }
+    for (let i = 0; i < 1200; i += 1) {
+      ctx.fillStyle = `rgba(244,239,227,${random() * 0.06})`;
+      ctx.fillRect(x + random() * width, y + random() * height, 1, 1);
+    }
+
+    const vignette = ctx.createRadialGradient(540, 590, 200, 540, 590, 660);
+    vignette.addColorStop(0, "rgba(0,0,0,0)");
+    vignette.addColorStop(0.72, "rgba(0,0,0,0.12)");
+    vignette.addColorStop(1, "rgba(0,0,0,0.55)");
+    ctx.fillStyle = vignette;
+    ctx.fillRect(x, y, width, height);
+
+    drawMonitorCameraUi(ctx, result);
+
+    ctx.restore();
+
+    ctx.strokeStyle = C.cream;
+    ctx.lineWidth = 2.5;
+    roundRect(ctx, x, y, width, height, 4);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(244,239,227,0.28)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, x + 8, y + 8, width - 16, height - 16, 2);
+    ctx.stroke();
+  }
+
+  function drawMonitorCameraUi(ctx, result) {
+    setFont(ctx, 10, MONO, "700");
+    ctx.fillStyle = C.cream;
+    ctx.textAlign = "left";
+    drawSpacedText(ctx, "CAM 03 / WIDE", 82, 300, 1.2);
+    ctx.fillStyle = C.coral;
+    ctx.fillText("● LIVE", 210, 300);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = C.cream;
+    ctx.fillText("17:59:59", 1002, 300);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = C.sageLight;
+    ctx.fillText("NO AUDIO", 82, 884);
+
+    ctx.textAlign = "center";
+    setFont(ctx, 10, MONO, "700");
+    ctx.fillStyle = C.coral;
+    drawSpacedText(ctx, "MOTION DETECTED", 540, 300, 1.6, "center");
+
+    ctx.textAlign = "left";
+    setFont(ctx, 9, MONO, "700");
+    ctx.fillStyle = C.cream;
+    drawSpacedText(ctx, "SUBJECT 01 / " + (result.bloomed ? "BLOOM 100%" : "NO BLOOM"), 424, 374, 0.9);
+
+    // subject box
+    ctx.strokeStyle = "rgba(244,239,227,0.65)";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([8, 7]);
+    ctx.strokeRect(418, 386, 252, 470);
+    ctx.setLineDash([]);
+    ctx.strokeStyle = C.coral;
+    ctx.lineWidth = 3;
+    const corners = [
+      [418, 386, 1, 1],
+      [670, 386, -1, 1],
+      [418, 856, 1, -1],
+      [670, 856, -1, -1]
+    ];
+    corners.forEach(([cx, cy, dx, dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * 15, cy);
+      ctx.lineTo(cx, cy);
+      ctx.lineTo(cx, cy + dy * 15);
+      ctx.stroke();
+    });
+
+    // crosshair
+    ctx.strokeStyle = "rgba(229,107,74,0.7)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(540, 612);
+    ctx.lineTo(540, 644);
+    ctx.moveTo(524, 628);
+    ctx.lineTo(556, 628);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(540, 628, 10, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // manager box
+    ctx.strokeStyle = "rgba(229,107,74,0.7)";
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(852, 322, 174, 192);
+    ctx.setLineDash([]);
+    setFont(ctx, 9, MONO, "700");
+    ctx.fillStyle = C.coral;
+    ctx.textAlign = "left";
+    drawSpacedText(ctx, "MANAGER", 858, 314, 1.3);
+
+    // sight line
+    ctx.strokeStyle = "rgba(229,107,74,0.35)";
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([4, 9]);
+    ctx.beginPath();
+    ctx.moveTo(900, 410);
+    ctx.lineTo(710, 520);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // rec corner
+    ctx.fillStyle = C.coral;
+    ctx.beginPath();
+    ctx.arc(1004, 878, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = C.cream;
+    setFont(ctx, 9, MONO, "700");
+    ctx.textAlign = "right";
+    ctx.fillText("REC", 988, 882);
+  }
+
+  function drawMonitorPanel(ctx, result) {
+    const x = 60;
+    const y = 940;
+    const width = 960;
+    const height = 400;
+
+    ctx.fillStyle = C.cream;
+    ctx.strokeStyle = C.forest;
+    ctx.lineWidth = 2.5;
+    roundRect(ctx, x, y, width, height, 3);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = C.coral;
+    ctx.fillRect(x, y, width, 7);
+
+    setFont(ctx, 13, MONO, "700");
+    ctx.fillStyle = C.coralDark;
+    ctx.textAlign = "left";
+    drawSpacedText(ctx, "CASE FILE / 工位人格", 84, 986, 1.5);
+
+    setFont(ctx, 57, SERIF, "700");
+    ctx.fillStyle = C.forest;
+    ctx.fillText(result.title, 80, 1055);
+
+    drawGrade(ctx, result.grade, 972, 1028);
+
+    setFont(ctx, 21, SANS, "400");
+    ctx.fillStyle = "#4F5B4C";
+    drawWrapped(ctx, result.desc, 82, 1092, 850, 30, "left");
+
+    const stats = [
+      ["摸鱼值", result.score.toLocaleString("zh-CN")],
+      ["开花用时", result.timeValue],
+      ["完美切屏", `${result.perfects} 次`],
+      ["被抓包", `${result.caught} 次`]
+    ];
+    const startX = 82;
+    const gap = 12;
+    const boxW = (876 - gap * 3) / 4;
+    const statY = 1162;
+    const statH = 80;
+    stats.forEach(([label, value], index) => {
+      const sx = startX + index * (boxW + gap);
+      ctx.fillStyle = "rgba(36,56,44,0.055)";
+      ctx.strokeStyle = "rgba(36,56,44,0.2)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, sx, statY, boxW, statH, 2);
+      ctx.fill();
+      ctx.stroke();
+      setFont(ctx, 12, SANS, "400");
+      ctx.fillStyle = C.inkSoft;
+      ctx.textAlign = "left";
+      ctx.fillText(label, sx + 10, statY + 24);
+      setFont(ctx, 25, MONO, "700");
+      ctx.fillStyle = C.forest;
+      ctx.fillText(value, sx + 10, statY + 60);
+    });
+
+    ctx.fillStyle = "rgba(242,193,78,0.34)";
+    ctx.fillRect(82, 1269, 4, 59);
+    setFont(ctx, 26, SERIF, "700");
+    ctx.fillStyle = C.forest;
+    ctx.textAlign = "left";
+    const quoteLines = wrapLines(ctx, `“${result.quote}”`, 824);
+    quoteLines.slice(0, 2).forEach((line, index) => {
+      ctx.fillText(line, 106, 1297 + index * 32);
+    });
+  }
+
+  function drawMonitorFooter(ctx, result) {
+    setFont(ctx, 20, SERIF, "700");
+    ctx.fillStyle = C.cream;
+    ctx.textAlign = "left";
+    ctx.fillText("#带薪养花挑战", 82, 1376);
+
+    const bars = [2, 4, 2, 3, 2, 5, 2, 2, 4, 3, 2, 4, 2, 3, 5, 2, 2, 4, 3, 2];
+    let bx = 780;
+    ctx.fillStyle = "rgba(244,239,227,0.6)";
+    bars.forEach((bar, index) => {
+      ctx.fillRect(bx, 1356, bar, index % 4 === 0 ? 24 : 18);
+      bx += bar + 3;
+    });
+
+    setFont(ctx, 10, MONO, "700");
+    ctx.fillStyle = C.sageLight;
+    ctx.textAlign = "right";
+    drawSpacedText(ctx, "EVIDENCE No. 045", 1000, 1376, 1.1, "right");
+  }
+
+  function drawMonitorCard(ctx, result) {
+    drawMonitorBackground(ctx);
+    drawMonitorHeader(ctx, result);
+    drawMonitorScene(ctx, result);
+    drawMonitorPanel(ctx, result);
+    drawMonitorFooter(ctx, result);
+  }
+
+  function render(result, style = "botanical") {
+    const cardStyle = style === "monitor" ? "monitor" : "botanical";
+    seed = 20261027 + (result.score || 0) + (cardStyle === "monitor" ? 907 : 0);
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas is not available");
 
-    drawPaperBackground(ctx);
-    drawFrame(ctx);
-    drawHeader(ctx, result);
-    drawIllustration(ctx, result);
-    drawPersona(ctx, result);
-    drawStats(ctx, result);
-    drawQuote(ctx, result);
-    drawFooter(ctx, result);
+    if (cardStyle === "monitor") {
+      drawMonitorCard(ctx, result);
+    } else {
+      drawPaperBackground(ctx);
+      drawFrame(ctx);
+      drawHeader(ctx, result);
+      drawIllustration(ctx, result);
+      drawPersona(ctx, result);
+      drawStats(ctx, result);
+      drawQuote(ctx, result);
+      drawFooter(ctx, result);
+    }
 
     return canvas.toDataURL("image/png");
   }
