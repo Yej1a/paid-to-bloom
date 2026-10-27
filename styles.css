@@ -1572,6 +1572,36 @@ blockquote::before {
   cursor: pointer;
 }
 
+.card-style-switch {
+  display: flex;
+  align-self: flex-start;
+  margin: 8px 0 2px;
+  overflow: hidden;
+  border: 1.3px solid var(--forest);
+  border-radius: 2px;
+}
+
+.card-style-switch button {
+  padding: 6px 11px;
+  border: 0;
+  border-right: 1px solid rgba(36, 56, 44, 0.24);
+  background: transparent;
+  color: var(--forest);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+}
+
+.card-style-switch button:last-child {
+  border-right: 0;
+}
+
+.card-style-switch button.is-active {
+  background: var(--forest);
+  color: var(--cream);
+}
+
 .card-preview {
   display: flex;
   min-height: 0;
