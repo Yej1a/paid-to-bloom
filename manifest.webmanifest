@@ -1,0 +1,26 @@
+{
+  "name": "带薪养花 · 工位微园艺",
+  "short_name": "带薪养花",
+  "description": "老板回头的 0.5 秒，我假装在做表。45 秒、单手可玩的工位微园艺小游戏。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4EFE3",
+  "theme_color": "#F4EFE3",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
