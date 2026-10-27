@@ -157,6 +157,8 @@
     cardScreen: $("#cardScreen"),
     closeCardBtn: $("#closeCardBtn"),
     cardImage: $("#cardImage"),
+    cardStyleSwitch: $("#cardStyleSwitch"),
+    cardStyleButtons: $$("#cardStyleSwitch [data-style]"),
     shareBtn: $("#shareBtn"),
     copyBtn: $("#copyBtn"),
     srStatus: $("#srStatus"),
@@ -226,6 +228,8 @@
 
   let G = makeState();
   let result = null;
+  let cardStyle = "botanical";
+  let cardDataUrls = Object.create(null);
   let cardDataUrl = "";
   let toastTimer = 0;
   let stampTimer = 0;
@@ -902,7 +906,10 @@
     el.statTime.textContent = result.timeValue;
     el.statPerfect.textContent = `${result.perfects}`;
     el.statCaught.textContent = `${result.caught}`;
+    cardStyle = "botanical";
+    cardDataUrls = Object.create(null);
     cardDataUrl = "";
+    updateCardStyleButtons();
     el.cardImage.removeAttribute("src");
 
     shiftCount += 1;
@@ -968,7 +975,10 @@
     G = makeState();
     G.phase = "playing";
     result = null;
+    cardStyle = "botanical";
+    cardDataUrls = Object.create(null);
     cardDataUrl = "";
+    updateCardStyleButtons();
     el.resultScreen.classList.remove(HR.screenOn);
     el.resultScreen.hidden = true;
     el.cardScreen.classList.remove(HR.screenOn);
@@ -1040,22 +1050,58 @@
     releaseHold();
   }
 
+  function updateCardStyleButtons() {
+    el.cardStyleButtons.forEach((button) => {
+      const active = button.dataset.style === cardStyle;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  function renderCardForStyle(style) {
+    if (!result) return false;
+    const normalized = style === "monitor" ? "monitor" : "botanical";
+    if (cardDataUrls[normalized]) {
+      cardStyle = normalized;
+      cardDataUrl = cardDataUrls[normalized];
+      el.cardImage.src = cardDataUrl;
+      el.cardImage.alt = normalized === "monitor"
+        ? "工位监控版战报卡，包含工位人格和本局数据"
+        : "植物图鉴版战报卡，包含工位人格和本局数据";
+      updateCardStyleButtons();
+      return true;
+    }
+
+    if (!window.PaidToBloomCard || typeof window.PaidToBloomCard.render !== "function") {
+      showToast("战报生成失败，再试一次", "coral", 1200);
+      return false;
+    }
+    try {
+      const dataUrl = window.PaidToBloomCard.render(result, normalized);
+      cardDataUrls[normalized] = dataUrl;
+      cardStyle = normalized;
+      cardDataUrl = dataUrl;
+      el.cardImage.src = dataUrl;
+      el.cardImage.alt = normalized === "monitor"
+        ? "工位监控版战报卡，包含工位人格和本局数据"
+        : "植物图鉴版战报卡，包含工位人格和本局数据";
+      updateCardStyleButtons();
+      return true;
+    } catch (error) {
+      console.error(error);
+      showToast("战报生成失败，再试一次", "coral", 1200);
+      return false;
+    }
+  }
+
+  function selectCardStyle(style) {
+    if (style === cardStyle && cardDataUrl) return;
+    renderCardForStyle(style);
+  }
+
   function openCard() {
     if (!result) return;
-    if (!cardDataUrl) {
-      if (!window.PaidToBloomCard || typeof window.PaidToBloomCard.render !== "function") {
-        showToast("战报生成失败，再试一次", "coral", 1200);
-        return;
-      }
-      try {
-        cardDataUrl = window.PaidToBloomCard.render(result);
-        el.cardImage.src = cardDataUrl;
-      } catch (error) {
-        console.error(error);
-        showToast("战报生成失败，再试一次", "coral", 1200);
-        return;
-      }
-    }
+    if (!renderCardForStyle(cardStyle)) return;
     el.cardScreen.hidden = false;
     requestAnimationFrame(() => el.cardScreen.classList.add(HR.screenOn));
   }
@@ -1187,6 +1233,9 @@
     el.retryBtn.addEventListener("click", retry);
     el.cardBtn.addEventListener("click", openCard);
     el.closeCardBtn.addEventListener("click", closeCard);
+    el.cardStyleButtons.forEach((button) => {
+      button.addEventListener("click", () => selectCardStyle(button.dataset.style));
+    });
     el.shareBtn.addEventListener("click", shareCard);
     el.copyBtn.addEventListener("click", copyCaption);
     el.muteBtn.addEventListener("click", () => {
