@@ -2,8 +2,8 @@
   "use strict";
 
   const CONFIG = {
-    totalSeconds: 45,
-    growthRate: 4.2,
+    totalSeconds: 30,
+    growthRate: 5.4,
     growthPenalty: 9,
     perfectGrowth: 1.2,
     perfectWindow: 0.55,
@@ -1228,8 +1228,8 @@
   }
 
   function getAct() {
-    if (G.elapsed >= 30) return 2;
-    if (G.elapsed >= 15) return 1;
+    if (G.elapsed >= 20) return 2;
+    if (G.elapsed >= 10) return 1;
     return 0;
   }
 
@@ -1239,11 +1239,11 @@
     if (act <= G.act) return;
     G.act = act;
     if (act === 1) {
-      showToast("离下班 30 秒 · 老板开始来回走", "gold", 1600);
-      announce("离下班还有三十秒，老板开始来回走。");
+      showToast("离下班 20 秒 · 老板开始来回走", "gold", 1400);
+      announce("离下班还有二十秒，老板开始来回走。");
     } else {
-      showToast("最后 15 秒 · 老板认真了", "gold", 1600);
-      announce("最后十五秒，老板开始认真了。");
+      showToast("最后 10 秒 · 老板认真了", "gold", 1400);
+      announce("最后十秒，老板开始认真了。");
     }
     Sound.act();
   }

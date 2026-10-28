@@ -2,14 +2,14 @@
 
 > 老板回头的 0.5 秒，我假装在做表。
 
-45 秒、单手可玩的工位微园艺网页小游戏。
+30 秒、单手可玩的工位微园艺网页小游戏。
 
 ## 在线玩
 
 **https://yej1a.github.io/paid-to-bloom/**
 
 iPhone：Safari 打开 → 分享 → 添加到主屏幕。  
-Android：直接浏览器打开，也可以下载 [Android APK v1.3](download/paid-to-bloom-v1.3.apk)。
+Android：直接浏览器打开，也可以下载 [Android APK v1.4](download/paid-to-bloom-v1.4.apk)。
 
 ## 玩法
 
