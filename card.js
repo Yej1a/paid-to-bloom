@@ -431,7 +431,7 @@
   }
 
   function drawPlant(ctx, cx, baseY, options) {
-    const { bloom, growth = 100, wilt = false } = options;
+    const { bloom, growth = 100, wilt = false, flower = "daisy" } = options;
     const stemTop = baseY - (wilt ? 196 : 244);
     const stemSway = wilt ? 55 : 4;
     const flowerY = stemTop;
@@ -480,20 +480,26 @@
     if (bloom) {
       ctx.save();
       ctx.translate(cx + stemSway, flowerY);
-      for (let i = 0; i < 8; i += 1) {
+      const petalCount = flower === "sunflower" ? 12 : 8;
+      const petalWidth = flower === "sunflower" ? 16 : 19;
+      const petalHeight = flower === "sunflower" ? 39 : 38;
+      for (let i = 0; i < petalCount; i += 1) {
         ctx.save();
-        ctx.rotate((Math.PI * 2 * i) / 8);
+        ctx.rotate((Math.PI * 2 * i) / petalCount);
         ctx.beginPath();
-        ctx.ellipse(0, -37, 19, 38, 0, 0, Math.PI * 2);
-        ctx.fillStyle = i % 2 === 0 ? C.coral : C.butter;
+        ctx.ellipse(0, -37, petalWidth, petalHeight, 0, 0, Math.PI * 2);
+        ctx.fillStyle = flower === "sunflower"
+          ? (i % 2 === 0 ? C.butter : "#E8A93B")
+          : (i % 2 === 0 ? C.coral : C.butter);
         ctx.fill();
         ctx.strokeStyle = C.forest;
         ctx.lineWidth = 1.8;
         ctx.stroke();
         ctx.restore();
       }
+      const centerRadius = flower === "sunflower" ? 34 : 28;
       ctx.beginPath();
-      ctx.arc(0, 0, 28, 0, Math.PI * 2);
+      ctx.arc(0, 0, centerRadius, 0, Math.PI * 2);
       ctx.fillStyle = C.butter;
       ctx.fill();
       ctx.strokeStyle = C.forest;
@@ -563,6 +569,126 @@
       ctx.restore();
     }
     ctx.restore();
+  }
+
+  function drawCactus(ctx, cx, baseY, options) {
+    const { bloom, wilt = false } = options;
+    const bodyTop = baseY - (wilt ? 188 : 225);
+    const faceY = baseY - 86;
+    const flowerY = bodyTop - 18;
+    const bodyFill = wilt ? "#8FA77D" : "#7D9A6E";
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    // arms behind the main body
+    ctx.strokeStyle = wilt ? "#8FA77D" : "#5E7F5C";
+    ctx.lineWidth = 30;
+    ctx.beginPath();
+    ctx.moveTo(cx - 38, baseY - 58);
+    ctx.quadraticCurveTo(cx - 84, baseY - 72, cx - 84, baseY - 120);
+    ctx.stroke();
+    ctx.strokeStyle = wilt ? "#A7B49A" : "#6F8F63";
+    ctx.lineWidth = 27;
+    ctx.beginPath();
+    ctx.moveTo(cx + 38, baseY - 96);
+    ctx.quadraticCurveTo(cx + 82, baseY - 110, cx + 82, baseY - 150);
+    ctx.stroke();
+
+    // main column
+    ctx.fillStyle = bodyFill;
+    ctx.strokeStyle = C.forest;
+    ctx.lineWidth = 2.5;
+    roundRect(ctx, cx - 48, bodyTop, 96, baseY - bodyTop, 46);
+    ctx.fill();
+    ctx.stroke();
+
+    // ribs
+    ctx.strokeStyle = "rgba(36,56,44,0.45)";
+    ctx.lineWidth = 1.5;
+    [-25, 0, 25].forEach((offset) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + offset, bodyTop + 18);
+      ctx.lineTo(cx + offset, baseY - 6);
+      ctx.stroke();
+    });
+
+    // spines
+    ctx.strokeStyle = "rgba(250,246,234,0.82)";
+    ctx.lineWidth = 1.8;
+    ctx.lineCap = "round";
+    for (let i = 0; i < 6; i += 1) {
+      const sy = bodyTop + 40 + i * 25;
+      ctx.beginPath();
+      ctx.moveTo(cx - 47, sy);
+      ctx.lineTo(cx - 60, sy - 4);
+      ctx.moveTo(cx + 47, sy);
+      ctx.lineTo(cx + 60, sy - 4);
+      ctx.stroke();
+    }
+
+    // face
+    ctx.fillStyle = C.forest;
+    ctx.beginPath();
+    ctx.arc(cx - 15, faceY, 3.2, 0, Math.PI * 2);
+    ctx.arc(cx + 15, faceY, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = C.forest;
+    ctx.lineWidth = 2.3;
+    ctx.beginPath();
+    ctx.arc(cx, faceY + 13, wilt ? 5 : 7, wilt ? Math.PI + 0.15 : 0.15, wilt ? Math.PI * 2 - 0.15 : Math.PI - 0.15);
+    ctx.stroke();
+
+    if (bloom) {
+      ctx.save();
+      ctx.translate(cx, flowerY);
+      for (let i = 0; i < 8; i += 1) {
+        ctx.save();
+        ctx.rotate((Math.PI * 2 * i) / 8);
+        ctx.beginPath();
+        ctx.ellipse(0, -25, 12, 28, 0, 0, Math.PI * 2);
+        ctx.fillStyle = i % 2 === 0 ? "#E59A9A" : C.coral;
+        ctx.fill();
+        ctx.strokeStyle = C.forest;
+        ctx.lineWidth = 1.7;
+        ctx.stroke();
+        ctx.restore();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, 20, 0, Math.PI * 2);
+      ctx.fillStyle = C.butter;
+      ctx.fill();
+      ctx.strokeStyle = C.forest;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      ctx.beginPath();
+      ctx.ellipse(cx, flowerY + 8, 16, 26, 0, 0, Math.PI * 2);
+      ctx.fillStyle = wilt ? "#C9B6A8" : "#E59A9A";
+      ctx.fill();
+      ctx.strokeStyle = C.forest;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawFlowerForCard(ctx, cx, baseY, result) {
+    if (result.flowerKey === "cactus") {
+      drawCactus(ctx, cx, baseY, {
+        bloom: result.bloomed,
+        wilt: !result.bloomed
+      });
+    } else {
+      drawPlant(ctx, cx, baseY, {
+        bloom: result.bloomed,
+        growth: result.growth,
+        wilt: !result.bloomed,
+        flower: result.flowerKey
+      });
+    }
   }
 
   function drawIllustration(ctx, result) {
@@ -654,20 +780,16 @@
     ctx.ellipse(x + 536, y + 496, 102, 13, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    drawPlant(ctx, x + 536, y + 410, {
-      bloom: result.bloomed,
-      growth: result.growth,
-      wilt: !result.bloomed
-    });
+    drawFlowerForCard(ctx, x + 536, y + 410, result);
     drawMug(ctx, x + 536, y + 410, 0.94);
 
     // figure label
     setFont(ctx, 10, MONO, "700");
     ctx.fillStyle = C.inkSoft;
     ctx.textAlign = "left";
-    drawSpacedText(ctx, "FIG. 01 — 工位微景观", x + 24, y + height - 18, 1.2);
+    drawSpacedText(ctx, `FIG. 01 — ${result.flowerName || "工位微景观"}`, x + 24, y + height - 18, 1.2);
     ctx.textAlign = "right";
-    ctx.fillText("PAID TO BLOOM / 045", x + width - 24, y + height - 18);
+    ctx.fillText(`PAID TO BLOOM / ${result.bossName || "045"}`, x + width - 24, y + height - 18);
 
     ctx.restore();
   }
@@ -699,6 +821,11 @@
     setFont(ctx, 14, MONO, "700");
     ctx.fillStyle = C.coralDark;
     drawSpacedText(ctx, "你的工位人格 / OFFICE PERSONA", 82, 869, 1.8);
+
+    setFont(ctx, 10, MONO, "400");
+    ctx.fillStyle = C.inkSoft;
+    ctx.textAlign = "left";
+    ctx.fillText(`${result.flowerName || "工位微景观"} / ${result.bossName || "老板"}`, 82, 889);
 
     setFont(ctx, 65, SERIF, "700");
     ctx.fillStyle = C.forest;
@@ -1099,11 +1226,7 @@
     ctx.ellipse(540, 824, 106, 14, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    drawPlant(ctx, 540, 735, {
-      bloom: result.bloomed,
-      growth: result.growth,
-      wilt: !result.bloomed
-    });
+    drawFlowerForCard(ctx, 540, 735, result);
     drawMug(ctx, 540, 735, 0.94);
 
     // low-light tint
@@ -1172,7 +1295,7 @@
     ctx.textAlign = "left";
     setFont(ctx, 9, MONO, "700");
     ctx.fillStyle = C.cream;
-    drawSpacedText(ctx, "SUBJECT 01 / " + (result.bloomed ? "BLOOM 100%" : "NO BLOOM"), 424, 374, 0.9);
+    drawSpacedText(ctx, `SUBJECT 01 / ${result.flowerName || "工位微景观"} / ${result.bloomed ? "BLOOM 100%" : "NO BLOOM"}`, 424, 374, 0.9);
 
     // subject box
     ctx.strokeStyle = "rgba(244,239,227,0.65)";
@@ -1218,7 +1341,7 @@
     setFont(ctx, 9, MONO, "700");
     ctx.fillStyle = C.coral;
     ctx.textAlign = "left";
-    drawSpacedText(ctx, "MANAGER", 858, 314, 1.3);
+    drawSpacedText(ctx, `MANAGER / ${result.bossName || "老板"}`, 858, 314, 1.3);
 
     // sight line
     ctx.strokeStyle = "rgba(229,107,74,0.35)";
@@ -1261,6 +1384,10 @@
     ctx.fillStyle = C.coralDark;
     ctx.textAlign = "left";
     drawSpacedText(ctx, "CASE FILE / 工位人格", 84, 986, 1.5);
+
+    setFont(ctx, 10, MONO, "400");
+    ctx.fillStyle = C.inkSoft;
+    ctx.fillText(`${result.flowerName || "工位微景观"} / ${result.bossName || "老板"}`, 84, 1008);
 
     setFont(ctx, 57, SERIF, "700");
     ctx.fillStyle = C.forest;
@@ -1370,6 +1497,7 @@
       : "我在工位养花，花没开，人先麻了。";
     return [
       opener,
+      `今天养的是「${result.flowerName}」，遇到的是「${result.bossName}」老板。`,
       `我的工位人格是「${result.title}」：完美切屏 ${result.perfects} 次，被抓包 ${result.caught} 次，摸鱼值 ${result.score.toLocaleString("zh-CN")}。`,
       result.quote,
       "#带薪养花 #打工人小游戏 #网页小游戏 #工位日常 #摸鱼文学"

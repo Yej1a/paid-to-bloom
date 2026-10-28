@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="带薪养花">
   <meta name="application-name" content="带薪养花">
-  <meta name="app-build" content="20261028a">
+  <meta name="app-build" content="20261028c">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="带薪养花">
   <meta property="og:title" content="带薪养花 · 工位微园艺">
@@ -20,10 +20,10 @@
   <meta name="twitter:description" content="老板回头的 0.5 秒，我假装在做表。45 秒、单手可玩的工位微园艺小游戏。">
   <meta name="twitter:image" content="https://yej1a.github.io/paid-to-bloom/og-cover.png">
   <title>带薪养花 · 工位微园艺</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028a">
-  <link rel="manifest" href="manifest.webmanifest?v=20261028a">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261028a">
-  <link rel="stylesheet" href="styles.css?v=20261028a">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028c">
+  <link rel="manifest" href="manifest.webmanifest?v=20261028c">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261028c">
+  <link rel="stylesheet" href="styles.css?v=20261028c">
 </head>
 <body>
   <div class="desk-bg" aria-hidden="true"></div>
@@ -124,6 +124,10 @@
             <g class="boss-turn" id="bossTurn">
               <ellipse cx="804" cy="506" rx="137" ry="167" fill="#24382C"/>
               <path d="M686 558c19-57 59-89 118-89s101 32 120 89" fill="#2E4639"/>
+              <g id="bossCap" class="boss-accessory">
+                <path d="M690 400c25-48 70-70 114-70s89 22 114 70l-15 12H705Z" fill="#4E6B4C" stroke="#15241C" stroke-width="5" stroke-linejoin="round"/>
+                <path d="M668 402c60-12 210-12 270 0" fill="none" stroke="#15241C" stroke-width="8" stroke-linecap="round"/>
+              </g>
               <path d="M744 394c18-25 43-38 60-38s42 13 60 38" fill="none" stroke="#15241C" stroke-width="7" stroke-linecap="round"/>
               <!-- one visible eye -->
               <g class="boss-eye" id="bossEye">
@@ -156,6 +160,25 @@
             <path d="M807 714h50M807 729h37" stroke="#8D9B84" stroke-width="1.4"/>
           </g>
           <path d="M866 932v20M872 932v20M878 932v20" stroke="#24382C" stroke-width="2" opacity=".3"/>
+
+          <g id="bossCoffee" class="boss-accessory">
+            <g transform="translate(790 556)">
+              <path d="M0 15h58l-7 54c-1 8-11 13-22 13s-21-5-22-13Z" fill="#F7F1E1" stroke="#24382C" stroke-width="2.2"/>
+              <path d="M56 25c25-2 31 31 4 36" fill="none" stroke="#24382C" stroke-width="7" stroke-linecap="round"/>
+              <path d="M14 3c-5-9 4-14 0-22M32 3c-5-9 4-14 0-22" fill="none" stroke="#F4EFE3" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+              <text x="29" y="52" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#24382C">咖啡</text>
+            </g>
+          </g>
+
+          <g id="bossPatrol" class="boss-accessory">
+            <g transform="rotate(3 830 605)">
+              <rect x="788" y="556" width="88" height="108" fill="#F7F1E1" stroke="#24382C" stroke-width="1.6"/>
+              <rect x="788" y="556" width="88" height="24" fill="#4E6B4C"/>
+              <text x="832" y="573" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="10" fill="#F4EFE3">巡检表</text>
+              <path d="M800 594h60M800 610h48M800 626h56M800 642h38" stroke="#9EA78F" stroke-width="1.4"/>
+              <path d="M802 590l5 5 8-10M802 606l5 5 8-10" fill="none" stroke="#E56B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+          </g>
         </g>
 
         <!-- monitor -->
@@ -298,9 +321,43 @@
                 <ellipse cx="465" cy="716" rx="5" ry="2.6" fill="#E56B4A" opacity=".42"/>
               </g>
             </g>
-          </g>
 
-          <!-- mug -->
+            <g id="cactusGrowth" transform="translate(450 992) scale(.44) translate(-450 -992)">
+              <path d="M414 902c-42-5-62-28-62-62v-42" fill="none" stroke="#5E7F5C" stroke-width="42" stroke-linecap="round"/>
+              <path d="M486 868c38-4 56-25 56-56v-28" fill="none" stroke="#6F8F63" stroke-width="38" stroke-linecap="round"/>
+              <rect x="400" y="745" width="100" height="247" rx="50" fill="#7D9A6E" stroke="#24382C" stroke-width="3"/>
+              <path d="M428 760v215M450 748v232M472 760v215" fill="none" stroke="#4E6B4C" stroke-width="2" opacity=".6"/>
+              <g stroke="#F4EFE3" stroke-width="2" stroke-linecap="round" opacity=".8">
+                <path d="M406 810l-14-5M406 848l-14 5M406 886l-14-5M494 820l14-5M494 858l14 5M494 896l14-5"/>
+                <path d="M424 782l-8-12M440 770l-4-14M466 770l4-14M482 782l8-12"/>
+              </g>
+              <g id="cactusFace">
+                <circle cx="432" cy="850" r="3.2" fill="#24382C"/>
+                <circle cx="468" cy="850" r="3.2" fill="#24382C"/>
+                <path d="M438 866c8 8 16 8 24 0" fill="none" stroke="#24382C" stroke-width="2.5" stroke-linecap="round"/>
+                <ellipse cx="418" cy="862" rx="6" ry="3" fill="#E56B4A" opacity=".32"/>
+                <ellipse cx="482" cy="862" rx="6" ry="3" fill="#E56B4A" opacity=".32"/>
+              </g>
+              <g id="cactusBud" class="cactus-bud">
+                <ellipse cx="450" cy="735" rx="22" ry="30" fill="#E59A9A" stroke="#24382C" stroke-width="2.4"/>
+                <path d="M450 710v46" stroke="#C87878" stroke-width="1.5" opacity=".65"/>
+                <path d="M428 742c-12 2-20 9-22 19 11 3 20-1 27-9" fill="#C87878" stroke="#24382C" stroke-width="1.6"/>
+              </g>
+              <g id="cactusFlower" class="cactus-flower">
+                <g>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E59A9A" stroke="#24382C" stroke-width="2"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E56B4A" stroke="#24382C" stroke-width="2" transform="rotate(45 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E59A9A" stroke="#24382C" stroke-width="2" transform="rotate(90 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E56B4A" stroke="#24382C" stroke-width="2" transform="rotate(135 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E59A9A" stroke="#24382C" stroke-width="2" transform="rotate(180 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E56B4A" stroke="#24382C" stroke-width="2" transform="rotate(225 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E59A9A" stroke="#24382C" stroke-width="2" transform="rotate(270 450 730)"/>
+                  <ellipse cx="450" cy="698" rx="16" ry="31" fill="#E56B4A" stroke="#24382C" stroke-width="2" transform="rotate(315 450 730)"/>
+                  <circle cx="450" cy="730" r="24" fill="#F2C14E" stroke="#24382C" stroke-width="2.2"/>
+                </g>
+              </g>
+            </g>
+          </g>
           <g class="mug">
             <path d="M535 1000c52-5 64 73 6 84" fill="none" stroke="#24382C" stroke-width="15" stroke-linecap="round"/>
             <path d="M535 1000c52-5 64 73 6 84" fill="none" stroke="#F7F1E1" stroke-width="9" stroke-linecap="round"/>
@@ -436,11 +493,72 @@
         </div>
 
         <button class="cta" id="startBtn" type="button">
-          <span class="cta-main">开始上班</span>
-          <span class="cta-sub">45s · 单手 · 一盆花</span>
+          <span class="cta-main">选花上班</span>
+          <span class="cta-sub">下一步 · 抽老板 · 45 秒</span>
         </button>
 
         <p class="fineprint"><span id="shiftCount">今日第 1 盆</span> · 没有排行榜，也没有登录</p>
+        <button class="text-link" id="startCodexBtn" type="button">打开花谱 <span id="startCodexCount">0/3</span></button>
+      </div>
+    </div>
+
+    <!-- setup -->
+    <div class="screen setup-screen" id="setupScreen" hidden>
+      <div class="start-card setup-card">
+        <div class="card-rule"><span>SHIFT SETUP</span><span id="setupDate">2026.10.28</span></div>
+
+        <p class="eyebrow">今日工位 / 先选一盆花</p>
+        <h2 class="setup-title">今天养哪盆？</h2>
+
+        <div class="flower-picker" id="flowerPicker">
+          <button class="flower-option is-active" data-flower="daisy" type="button" aria-pressed="true">
+            <span class="flower-thumb" data-flower-icon="daisy"></span>
+            <b>小雏菊</b>
+            <small>普通，但很耐看。</small>
+            <em class="flower-stamp">已养开</em>
+          </button>
+          <button class="flower-option" data-flower="sunflower" type="button" aria-pressed="false">
+            <span class="flower-thumb" data-flower-icon="sunflower"></span>
+            <b>向日葵</b>
+            <small>今天也要向着光。</small>
+            <em class="flower-stamp">已养开</em>
+          </button>
+          <button class="flower-option" data-flower="cactus" type="button" aria-pressed="false">
+            <span class="flower-thumb" data-flower-icon="cactus"></span>
+            <b>仙人掌</b>
+            <small>带刺，也会开。</small>
+            <em class="flower-stamp">已养开</em>
+          </button>
+        </div>
+
+        <div class="boss-preview" id="bossPreview">
+          <div class="boss-portrait" id="setupBossPortrait" aria-hidden="true">
+            <svg viewBox="0 0 72 56">
+              <ellipse cx="36" cy="30" rx="25" ry="23" fill="#24382C"/>
+              <ellipse cx="37" cy="29" rx="13" ry="9" fill="#FBF6E8" stroke="#16251D" stroke-width="1.4"/>
+              <circle id="setupBossPupil" cx="34" cy="30" r="4.3" fill="#24382C"/>
+              <path d="M25 17c8-4 17-4 25 0" fill="none" stroke="#16251D" stroke-width="2.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="boss-copy">
+            <span class="mini-label">今日值班老板</span>
+            <div class="boss-name-row">
+              <b id="setupBossName">在吗型</b>
+              <span id="setupBossTag">高频 · 短盯</span>
+            </div>
+            <p id="setupBossQuip">在吗？这个花比报表长得快。</p>
+          </div>
+        </div>
+
+        <button class="cta" id="setupStartBtn" type="button">
+          <span class="cta-main">开始上班</span>
+          <span class="cta-sub" id="setupStartSub">小雏菊 · 在吗型老板</span>
+        </button>
+
+        <div class="setup-links">
+          <button class="text-link" id="setupBackBtn" type="button">返回</button>
+          <button class="text-link" id="setupCodexBtn" type="button">花谱 <span id="setupCodexCount">0/3</span></button>
+        </div>
       </div>
     </div>
 
@@ -458,6 +576,8 @@
         </div>
 
         <p class="result-desc" id="personaDesc"></p>
+        <p class="result-context" id="resultContext"></p>
+        <p class="result-boss-line" id="resultBossLine"></p>
 
         <div class="stats" id="stats">
           <div class="stat"><span>摸鱼值</span><b id="statScore">0</b></div>
@@ -505,10 +625,26 @@
       </div>
     </div>
 
+    <!-- flower codex -->
+    <div class="screen codex-screen" id="codexScreen" hidden>
+      <div class="codex-card">
+        <div class="card-modal-head">
+          <div>
+            <span class="modal-kicker">OFFICE FLORA</span>
+            <b>工位花谱</b>
+          </div>
+          <button class="close-btn" id="closeCodexBtn" type="button" aria-label="关闭">×</button>
+        </div>
+        <p class="codex-summary" id="codexSummary">认识 0/3 · 养开 0/3</p>
+        <div class="codex-list" id="codexList"></div>
+        <p class="card-tip">见过就收录，养开才盖章。</p>
+      </div>
+    </div>
+
     <div class="sr-only" id="srStatus" aria-live="assertive"></div>
   </main>
 
-  <script src="game.js?v=20261028a" defer></script>
-  <script src="card.js?v=20261028a" defer></script>
+  <script src="game.js?v=20261028c" defer></script>
+  <script src="card.js?v=20261028c" defer></script>
 </body>
 </html>

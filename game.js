@@ -7,19 +7,101 @@
     growthPenalty: 9,
     perfectGrowth: 1.2,
     perfectWindow: 0.55,
-    firstQuiet: 4.2,
-    quietBase: 3.35,
-    quietMin: 2.12,
-    quietStep: 0.105,
-    warnBase: 1.45,
-    warnMin: 1.02,
-    warnStep: 0.045,
-    watchBase: 1.12,
-    watchStep: 0.018,
-    watchMax: 1.34,
-    leaveBase: 0.72,
     scorePerfect: 180
   };
+
+  const FLOWERS = {
+    daisy: {
+      key: "daisy",
+      name: "小雏菊",
+      en: "DAISY",
+      tagline: "普通，但很耐看。",
+      coral: "#E56B4A",
+      butter: "#F2C14E"
+    },
+    sunflower: {
+      key: "sunflower",
+      name: "向日葵",
+      en: "SUNFLOWER",
+      tagline: "今天也要向着光。",
+      coral: "#F2C14E",
+      butter: "#E8A93B"
+    },
+    cactus: {
+      key: "cactus",
+      name: "仙人掌",
+      en: "CACTUS",
+      tagline: "带刺，也会开。",
+      coral: "#E59A9A",
+      butter: "#F2C14E"
+    }
+  };
+
+  const BOSSES = {
+    inquiry: {
+      key: "inquiry",
+      name: "在吗型",
+      tag: "高频 · 短盯",
+      bubble: "在吗？",
+      quip: "在吗？这个花比报表长得快。",
+      config: {
+        firstQuiet: 4.0,
+        quietBase: 3.0,
+        quietMin: 1.9,
+        quietStep: 0.1,
+        warnBase: 1.4,
+        warnMin: 1.0,
+        warnStep: 0.045,
+        watchBase: 1.0,
+        watchStep: 0.015,
+        watchMax: 1.12,
+        leaveBase: 0.7
+      }
+    },
+    coffee: {
+      key: "coffee",
+      name: "咖啡型",
+      tag: "长静默 · 长盯",
+      bubble: "续杯。",
+      quip: "出去续杯，回来续命。你的土比我咖啡还湿。",
+      config: {
+        firstQuiet: 4.8,
+        quietBase: 4.0,
+        quietMin: 2.9,
+        quietStep: 0.08,
+        warnBase: 1.6,
+        warnMin: 1.2,
+        warnStep: 0.03,
+        watchBase: 1.9,
+        watchStep: 0.02,
+        watchMax: 2.2,
+        leaveBase: 0.85
+      }
+    },
+    patrol: {
+      key: "patrol",
+      name: "巡查型",
+      tag: "慢转头 · 长预警",
+      bubble: "路过。",
+      quip: "只是路过，顺便看看你的花。",
+      config: {
+        firstQuiet: 4.4,
+        quietBase: 3.5,
+        quietMin: 2.3,
+        quietStep: 0.07,
+        warnBase: 1.8,
+        warnMin: 1.3,
+        warnStep: 0.04,
+        watchBase: 1.35,
+        watchStep: 0.015,
+        watchMax: 1.55,
+        leaveBase: 0.8
+      }
+    }
+  };
+
+  const FLOWER_KEYS = Object.keys(FLOWERS);
+  const BOSS_KEYS = Object.keys(BOSSES);
 
   const PERSONAS = {
     god: {
@@ -62,7 +144,9 @@
 
   const STORAGE = {
     muted: "paidToBloom.muted",
-    daily: "paidToBloom.daily"
+    daily: "paidToBloom.daily",
+    flower: "paidToBloom.flower",
+    codex: "paidToBloom.codex.v1"
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -109,6 +193,69 @@
     safeStorageSet(STORAGE.daily, JSON.stringify({ date: todayKey(), count }));
   }
 
+  function emptyCodex() {
+    const entries = {};
+    FLOWER_KEYS.forEach((key) => {
+      entries[key] = { seen: false, bloomed: false };
+    });
+    return entries;
+  }
+
+  function readCodex() {
+    const fallback = emptyCodex();
+    try {
+      const raw = safeStorageGet(STORAGE.codex, "");
+      if (!raw) return fallback;
+      const stored = JSON.parse(raw);
+      FLOWER_KEYS.forEach((key) => {
+        if (stored && stored[key]) {
+          fallback[key].seen = Boolean(stored[key].seen);
+          fallback[key].bloomed = Boolean(stored[key].bloomed);
+        }
+      });
+    } catch (error) {
+      /* Ignore malformed local codex data. */
+    }
+    return fallback;
+  }
+
+  function saveCodex() {
+    safeStorageSet(STORAGE.codex, JSON.stringify(codexState));
+  }
+
+  function markFlowerSeen(key) {
+    if (!codexState[key]) return;
+    if (!codexState[key].seen) {
+      codexState[key].seen = true;
+      saveCodex();
+    }
+  }
+
+  function markFlowerBloomed(key) {
+    if (!codexState[key]) return;
+    codexState[key].seen = true;
+    codexState[key].bloomed = true;
+    saveCodex();
+  }
+
+  function codexCounts() {
+    let seen = 0;
+    let bloomed = 0;
+    FLOWER_KEYS.forEach((key) => {
+      if (codexState[key] && codexState[key].seen) seen += 1;
+      if (codexState[key] && codexState[key].bloomed) bloomed += 1;
+    });
+    return { seen, bloomed, total: FLOWER_KEYS.length };
+  }
+
+  const storedFlower = safeStorageGet(STORAGE.flower, "daisy");
+  let currentFlowerKey = FLOWERS[storedFlower] ? storedFlower : "daisy";
+  let selectedFlowerKey = currentFlowerKey;
+  let currentBossKey = "inquiry";
+  let lastBossKey = null;
+  let codexState = readCodex();
+  let codexReturnFocus = null;
+
   const el = {
     app: $("#app"),
     stage: $("#stage"),
@@ -135,18 +282,40 @@
     growthFill: $("#growthFill"),
     growthMarker: $("#growthMarker"),
     stageName: $("#stageName"),
+    stageLabels: $$(".stage-labels span"),
     holdHint: $("#holdHint"),
     holdStrong: $("#holdStrong"),
     holdSmall: $("#holdSmall"),
     holdBarFill: $("#holdBarFill"),
     startScreen: $("#startScreen"),
     startBtn: $("#startBtn"),
+    startCodexBtn: $("#startCodexBtn"),
+    startCodexCount: $("#startCodexCount"),
     shiftCount: $("#shiftCount"),
+    setupScreen: $("#setupScreen"),
+    setupDate: $("#setupDate"),
+    flowerPicker: $("#flowerPicker"),
+    flowerOptions: $$(".flower-option"),
+    setupBossName: $("#setupBossName"),
+    setupBossTag: $("#setupBossTag"),
+    setupBossQuip: $("#setupBossQuip"),
+    setupBossPortrait: $("#setupBossPortrait"),
+    setupStartBtn: $("#setupStartBtn"),
+    setupStartSub: $("#setupStartSub"),
+    setupBackBtn: $("#setupBackBtn"),
+    setupCodexBtn: $("#setupCodexBtn"),
+    setupCodexCount: $("#setupCodexCount"),
+    codexScreen: $("#codexScreen"),
+    codexList: $("#codexList"),
+    codexSummary: $("#codexSummary"),
+    closeCodexBtn: $("#closeCodexBtn"),
     resultScreen: $("#resultScreen"),
     resultDate: $("#resultDate"),
     personaTitle: $("#personaTitle"),
     resultGrade: $("#resultGrade"),
     personaDesc: $("#personaDesc"),
+    resultContext: $("#resultContext"),
+    resultBossLine: $("#resultBossLine"),
     statScore: $("#statScore"),
     statTime: $("#statTime"),
     statPerfect: $("#statPerfect"),
@@ -173,6 +342,10 @@
     plantFace: $("#plantFace"),
     sproutFace: $("#sproutFace"),
     flowerPetals: $("#flowerPetals"),
+    cactusGrowth: $("#cactusGrowth"),
+    cactusBud: $("#cactusBud"),
+    cactusFlower: $("#cactusFlower"),
+    cactusFace: $("#cactusFace"),
     wateringCan: $("#wateringCan")
   };
 
@@ -216,8 +389,8 @@
       holding: false,
       pointerId: null,
       boss: "away",
-      bossT: CONFIG.firstQuiet,
-      warnTotal: CONFIG.warnBase,
+      bossT: BOSSES[currentBossKey].config.firstQuiet,
+      warnTotal: BOSSES[currentBossKey].config.warnBase,
       cycle: 0,
       endReason: null,
       endTimer: 0,
@@ -444,6 +617,241 @@
     stampTimer = window.setTimeout(() => el.perfectStamp.classList.remove(HR.stamp), 1180);
   }
 
+  const screenTimers = new WeakMap();
+
+  function showScreen(screen) {
+    if (!screen) return;
+    const timer = screenTimers.get(screen);
+    if (timer) {
+      window.clearTimeout(timer);
+      screenTimers.delete(screen);
+    }
+    screen.hidden = false;
+    requestAnimationFrame(() => screen.classList.add(HR.screenOn));
+  }
+
+  function hideScreen(screen, delay = 240) {
+    if (!screen) return;
+    const existing = screenTimers.get(screen);
+    if (existing) window.clearTimeout(existing);
+    screen.classList.remove(HR.screenOn);
+    const timer = window.setTimeout(() => {
+      screen.hidden = true;
+      screenTimers.delete(screen);
+    }, delay);
+    screenTimers.set(screen, timer);
+  }
+
+  function getFlower() {
+    return FLOWERS[currentFlowerKey] || FLOWERS.daisy;
+  }
+
+  function getBoss() {
+    return BOSSES[currentBossKey] || BOSSES.inquiry;
+  }
+
+  function applyProfileClasses() {
+    const body = document.body;
+    FLOWER_KEYS.forEach((key) => body.classList.remove(`flower-${key}`));
+    BOSS_KEYS.forEach((key) => body.classList.remove(`boss-${key}`));
+    body.classList.add(`flower-${currentFlowerKey}`, `boss-${currentBossKey}`);
+    const labels = currentFlowerKey === "cactus"
+      ? ["冒芽", "长个", "花苞", "开花"]
+      : ["发芽", "长叶", "花苞", "开花"];
+    el.stageLabels.forEach((label, index) => {
+      if (labels[index]) label.textContent = labels[index];
+    });
+  }
+
+  function rollBoss() {
+    let key = BOSS_KEYS[Math.floor(Math.random() * BOSS_KEYS.length)];
+    if (BOSS_KEYS.length > 1 && key === lastBossKey) {
+      const alternatives = BOSS_KEYS.filter((item) => item !== lastBossKey);
+      key = alternatives[Math.floor(Math.random() * alternatives.length)];
+    }
+    lastBossKey = key;
+    currentBossKey = key;
+    applyProfileClasses();
+  }
+
+  function flowerIconSvg(key) {
+    if (key === "sunflower") {
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M32 55V36" stroke="#3E5C43" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32 47c-8-8-16-8-20-4 4 8 12 10 20 4Z" fill="#7D9A6E" stroke="#24382C" stroke-width="1.4"/>
+        <path d="M32 43c8-7 15-7 19-3-3 8-11 10-19 3Z" fill="#A7B49A" stroke="#24382C" stroke-width="1.4"/>
+        <g transform="translate(32 27)">
+          <g fill="#F2C14E" stroke="#24382C" stroke-width="1.2">
+            <ellipse cx="0" cy="-17" rx="5" ry="11"/><ellipse cx="10" cy="-14" rx="5" ry="11" transform="rotate(30 10 -14)"/>
+            <ellipse cx="17" cy="-6" rx="5" ry="11" transform="rotate(60 17 -6)"/><ellipse cx="17" cy="6" rx="5" ry="11" transform="rotate(90 17 6)"/>
+            <ellipse cx="10" cy="14" rx="5" ry="11" transform="rotate(120 10 14)"/><ellipse cx="0" cy="17" rx="5" ry="11" transform="rotate(150 0 17)"/>
+            <ellipse cx="-10" cy="14" rx="5" ry="11" transform="rotate(180 -10 14)"/><ellipse cx="-17" cy="6" rx="5" ry="11" transform="rotate(210 -17 6)"/>
+            <ellipse cx="-17" cy="-6" rx="5" ry="11" transform="rotate(240 -17 -6)"/><ellipse cx="-10" cy="-14" rx="5" ry="11" transform="rotate(270 -10 -14)"/>
+          </g>
+          <circle cx="0" cy="0" r="12" fill="#7A4A2A" stroke="#24382C" stroke-width="1.4"/>
+          <circle cx="-4" cy="-2" r="1.4" fill="#F4EFE3"/><circle cx="4" cy="-2" r="1.4" fill="#F4EFE3"/>
+          <path d="M-4 4c3 2 5 2 8 0" fill="none" stroke="#F4EFE3" stroke-width="1.4" stroke-linecap="round"/>
+        </g>
+      </svg>`;
+    }
+    if (key === "cactus") {
+      return `<svg viewBox="0 0 64 64" aria-hidden="true">
+        <path d="M23 53c-8 0-11-5-11-11V31" fill="none" stroke="#6F8F63" stroke-width="9" stroke-linecap="round"/>
+        <path d="M41 47c8 0 11-5 11-11V34" fill="none" stroke="#7D9A6E" stroke-width="8" stroke-linecap="round"/>
+        <rect x="22" y="18" width="20" height="40" rx="10" fill="#7D9A6E" stroke="#24382C" stroke-width="1.6"/>
+        <path d="M28 23v30M36 21v33" stroke="#4E6B4C" stroke-width="1" opacity=".7"/>
+        <circle cx="28" cy="34" r="1.4" fill="#24382C"/><circle cx="36" cy="34" r="1.4" fill="#24382C"/>
+        <path d="M29 39c2 2 4 2 6 0" fill="none" stroke="#24382C" stroke-width="1.3" stroke-linecap="round"/>
+        <g transform="translate(32 14)">
+          <ellipse cx="0" cy="-5" rx="4" ry="8" fill="#E59A9A" stroke="#24382C" stroke-width="1.2" transform="rotate(-30)"/>
+          <ellipse cx="0" cy="-5" rx="4" ry="8" fill="#E56B4A" stroke="#24382C" stroke-width="1.2" transform="rotate(30)"/>
+          <ellipse cx="0" cy="-5" rx="4" ry="8" fill="#E59A9A" stroke="#24382C" stroke-width="1.2" transform="rotate(90)"/>
+          <ellipse cx="0" cy="-5" rx="4" ry="8" fill="#E56B4A" stroke="#24382C" stroke-width="1.2" transform="rotate(150)"/>
+          <circle cx="0" cy="0" r="5" fill="#F2C14E" stroke="#24382C" stroke-width="1.2"/>
+        </g>
+      </svg>`;
+    }
+    return `<svg viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M32 55V32" stroke="#3E5C43" stroke-width="3" stroke-linecap="round"/>
+      <path d="M32 48c-8-8-16-8-20-4 4 8 12 10 20 4Z" fill="#7D9A6E" stroke="#24382C" stroke-width="1.4"/>
+      <path d="M32 43c8-7 15-7 19-3-3 8-11 10-19 3Z" fill="#A7B49A" stroke="#24382C" stroke-width="1.4"/>
+      <g transform="translate(32 25)">
+        <g stroke="#24382C" stroke-width="1.2">
+          <ellipse cx="0" cy="-14" rx="6" ry="11" fill="#E56B4A"/>
+          <ellipse cx="10" cy="-10" rx="6" ry="11" fill="#F2C14E" transform="rotate(45 10 -10)"/>
+          <ellipse cx="14" cy="0" rx="6" ry="11" fill="#E56B4A" transform="rotate(90 14 0)"/>
+          <ellipse cx="10" cy="10" rx="6" ry="11" fill="#F2C14E" transform="rotate(135 10 10)"/>
+          <ellipse cx="0" cy="14" rx="6" ry="11" fill="#E56B4A" transform="rotate(180 0 14)"/>
+          <ellipse cx="-10" cy="10" rx="6" ry="11" fill="#F2C14E" transform="rotate(225 -10 10)"/>
+          <ellipse cx="-14" cy="0" rx="6" ry="11" fill="#E56B4A" transform="rotate(270 -14 0)"/>
+          <ellipse cx="-10" cy="-10" rx="6" ry="11" fill="#F2C14E" transform="rotate(315 -10 -10)"/>
+        </g>
+        <circle cx="0" cy="0" r="11" fill="#F2C14E" stroke="#24382C" stroke-width="1.4"/>
+        <circle cx="-4" cy="-2" r="1.3" fill="#24382C"/><circle cx="4" cy="-2" r="1.3" fill="#24382C"/>
+        <path d="M-3 4c2 2 4 2 6 0" fill="none" stroke="#24382C" stroke-width="1.3" stroke-linecap="round"/>
+      </g>
+    </svg>`;
+  }
+
+  function fillFlowerIcons() {
+    $$("[data-flower-icon]").forEach((node) => {
+      node.innerHTML = flowerIconSvg(node.dataset.flowerIcon);
+    });
+  }
+
+  function updateCodexLabels() {
+    const counts = codexCounts();
+    const text = `${counts.seen}/${counts.total}`;
+    if (el.startCodexCount) el.startCodexCount.textContent = text;
+    if (el.setupCodexCount) el.setupCodexCount.textContent = text;
+  }
+
+  function renderFlowerPicker() {
+    el.flowerOptions.forEach((option) => {
+      const key = option.dataset.flower;
+      const flower = FLOWERS[key];
+      if (!flower) return;
+      const state = codexState[key] || { seen: false, bloomed: false };
+      const active = key === selectedFlowerKey;
+      option.classList.toggle("is-active", active);
+      option.classList.toggle("is-seen", state.seen);
+      option.classList.toggle("is-bloomed", state.bloomed);
+      option.setAttribute("aria-pressed", active ? "true" : "false");
+      const stamp = option.querySelector(".flower-stamp");
+      if (stamp) stamp.textContent = state.bloomed ? "已养开" : state.seen ? "已认识" : "";
+    });
+  }
+
+  function renderBossPreview() {
+    const boss = getBoss();
+    if (el.setupBossName) el.setupBossName.textContent = boss.name;
+    if (el.setupBossTag) el.setupBossTag.textContent = boss.tag;
+    if (el.setupBossQuip) el.setupBossQuip.textContent = boss.quip;
+    if (el.setupBossPortrait) {
+      el.setupBossPortrait.classList.toggle("is-coffee", currentBossKey === "coffee");
+      el.setupBossPortrait.classList.toggle("is-patrol", currentBossKey === "patrol");
+    }
+    if (el.setupStartSub) {
+      el.setupStartSub.textContent = `${FLOWERS[selectedFlowerKey].name} · ${boss.name}老板`;
+    }
+  }
+
+  function renderSetup() {
+    if (el.setupDate) {
+      el.setupDate.textContent = new Date().toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).replaceAll("/", ".");
+    }
+    renderFlowerPicker();
+    renderBossPreview();
+    updateCodexLabels();
+  }
+
+  function openSetup() {
+    if (G.phase === "playing" || G.phase === "ending") return;
+    result = null;
+    cardStyle = "botanical";
+    cardDataUrls = Object.create(null);
+    cardDataUrl = "";
+    selectedFlowerKey = FLOWERS[currentFlowerKey] ? currentFlowerKey : "daisy";
+    rollBoss();
+    applyProfileClasses();
+    renderSetup();
+    hideScreen(el.startScreen, 220);
+    hideScreen(el.resultScreen, 180);
+    hideScreen(el.cardScreen, 180);
+    showScreen(el.setupScreen);
+    updateCardStyleButtons();
+  }
+
+  function backToStart() {
+    hideScreen(el.setupScreen, 220);
+    hideScreen(el.codexScreen, 140);
+    showScreen(el.startScreen);
+    updateCodexLabels();
+  }
+
+  function renderCodex() {
+    const counts = codexCounts();
+    if (el.codexSummary) {
+      el.codexSummary.textContent = `认识 ${counts.seen}/${counts.total} · 养开 ${counts.bloomed}/${counts.total}`;
+    }
+    if (!el.codexList) return;
+    el.codexList.innerHTML = FLOWER_KEYS.map((key) => {
+      const flower = FLOWERS[key];
+      const state = codexState[key] || { seen: false, bloomed: false };
+      const classes = [
+        "codex-entry",
+        state.seen ? "is-seen" : "is-unseen",
+        state.bloomed ? "is-bloomed" : ""
+      ].join(" ");
+      return `<div class="${classes}">
+        <div class="codex-thumb">${flowerIconSvg(key)}</div>
+        <div class="codex-copy"><b>${flower.name}</b><span>${flower.tagline}</span></div>
+        <div class="codex-stamps">
+          <span class="codex-status ${state.seen ? "is-seen" : "is-empty"}">${state.seen ? "已认识" : "未认识"}</span>
+          <span class="codex-status ${state.bloomed ? "is-bloomed" : "is-empty"}">${state.bloomed ? "已养开" : "未养开"}</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function openCodex() {
+    codexReturnFocus = document.activeElement;
+    renderCodex();
+    showScreen(el.codexScreen);
+  }
+
+  function closeCodex() {
+    hideScreen(el.codexScreen, 180);
+    if (codexReturnFocus && typeof codexReturnFocus.focus === "function") {
+      codexReturnFocus.focus();
+    }
+    codexReturnFocus = null;
+  }
+
   function setBodyState() {
     const body = document.body;
     const active = G.phase === "playing" || G.phase === "ending";
@@ -483,6 +891,12 @@
   }
 
   function stageForGrowth(growth) {
+    if (currentFlowerKey === "cactus") {
+      if (growth >= 90) return "开花";
+      if (growth >= 55) return "花苞";
+      if (growth >= 25) return "长个";
+      return "冒芽";
+    }
     if (growth >= 90) return "开花";
     if (growth >= 55) return "花苞";
     if (growth >= 25) return "长叶";
@@ -492,10 +906,9 @@
   function renderPlant(growth) {
     const normalized = clamp(growth / 100, 0, 1);
     const scale = 0.44 + 0.56 * Math.pow(normalized, 0.78);
-    el.plantGrowth.setAttribute(
-      "transform",
-      `translate(450 992) scale(${scale.toFixed(4)}) translate(-450 -992)`
-    );
+    const transform = `translate(450 992) scale(${scale.toFixed(4)}) translate(-450 -992)`;
+    el.plantGrowth.setAttribute("transform", transform);
+    if (el.cactusGrowth) el.cactusGrowth.setAttribute("transform", transform);
 
     el.leaf1.classList.toggle(HR.leaf, growth >= 14);
     el.leaf2.classList.toggle(HR.leaf, growth >= 34);
@@ -504,14 +917,18 @@
 
     const budOn = growth >= 52;
     el.budGroup.classList.toggle(HR.leaf, budOn);
-    el.budGroup.style.opacity = growth >= 94 ? String(clamp((100 - growth) / 6, 0, 1)) : "";
+    el.budGroup.style.opacity = growth >= 84 ? String(clamp((88 - growth) / 4, 0, 1)) : "";
 
     el.sproutFace.classList.toggle(HR.leaf, growth < 48);
     el.plantFace.classList.toggle(HR.leaf, growth >= 50);
     el.flowerPetals.classList.toggle(HR.leaf, growth >= 82);
 
+    if (el.cactusBud) el.cactusBud.classList.toggle(HR.leaf, growth >= 50 && growth < 82);
+    if (el.cactusFlower) el.cactusFlower.classList.toggle(HR.leaf, growth >= 82);
+
     const bloom = clamp((growth - 82) / 18, 0, 1);
-    const petalScale = bloom > 0 ? 0.16 + 0.84 * easeOutCubic(bloom) : 0.16;
+    const flowerScale = currentFlowerKey === "sunflower" ? 1.18 : 1;
+    const petalScale = (bloom > 0 ? 0.16 + 0.84 * easeOutCubic(bloom) : 0.16) * flowerScale;
     el.flowerPetals.setAttribute(
       "transform",
       `translate(446 710) scale(${petalScale.toFixed(4)}) translate(-446 -710)`
@@ -600,11 +1017,11 @@
 
   function updateBossBubble() {
     if (G.boss === "warning") {
-      el.bossLine.textContent = "在吗？";
+      el.bossLine.textContent = getBoss().bubble || "在吗？";
     } else if (G.boss === "watching") {
       el.bossLine.textContent = "……";
     } else {
-      el.bossLine.textContent = "在吗？";
+      el.bossLine.textContent = getBoss().bubble || "在吗？";
     }
 
     const progress = G.boss === "warning" ? clamp(1 - G.bossT / G.warnTotal, 0, 1) : 1;
@@ -678,7 +1095,10 @@
     if (afterStage !== beforeStage && G.growth < 100) {
       if (afterStage === "长叶" || afterStage === "花苞") {
         Sound.stageUp();
-        showToast(afterStage === "长叶" ? "长出了第一片叶子" : "结了一个小花苞", "", 1000);
+        const message = afterStage === "花苞"
+          ? "结了一个小花苞"
+          : currentFlowerKey === "cactus" ? "仙人掌长高了一点" : "长出了第一片叶子";
+        showToast(message, "", 1000);
       }
     }
     if (G.growth >= 100 && G.phase === "playing") {
@@ -687,29 +1107,32 @@
   }
 
   function beginBossQuiet(first = false) {
+    const cfg = getBoss().config;
     G.boss = "away";
     if (first) {
-      G.bossT = CONFIG.firstQuiet;
+      G.bossT = cfg.firstQuiet;
     } else {
-      G.bossT = Math.max(CONFIG.quietMin, CONFIG.quietBase - G.cycle * CONFIG.quietStep);
+      G.bossT = Math.max(cfg.quietMin, cfg.quietBase - G.cycle * cfg.quietStep);
     }
   }
 
   function beginWarning() {
+    const cfg = getBoss().config;
     G.cycle += 1;
     G.boss = "warning";
     G.perfectThisWarning = false;
-    G.warnTotal = Math.max(CONFIG.warnMin, CONFIG.warnBase - (G.cycle - 1) * CONFIG.warnStep);
+    G.warnTotal = Math.max(cfg.warnMin, cfg.warnBase - (G.cycle - 1) * cfg.warnStep);
     G.bossT = G.warnTotal;
     Sound.warn();
     announce("老板要回头了，准备松手。");
   }
 
   function beginWatching() {
+    const cfg = getBoss().config;
     G.boss = "watching";
     G.bossT = Math.min(
-      CONFIG.watchMax,
-      CONFIG.watchBase + Math.max(0, G.cycle - 1) * CONFIG.watchStep
+      cfg.watchMax,
+      cfg.watchBase + Math.max(0, G.cycle - 1) * cfg.watchStep
     );
     Sound.watch();
     if (G.holding) {
@@ -721,7 +1144,7 @@
 
   function beginLeaving() {
     G.boss = "leaving";
-    G.bossT = CONFIG.leaveBase;
+    G.bossT = getBoss().config.leaveBase;
   }
 
   function updateBoss(dt) {
@@ -872,6 +1295,13 @@
     ));
     return {
       ...persona,
+      flowerKey: currentFlowerKey,
+      flowerName: getFlower().name,
+      flowerTagline: getFlower().tagline,
+      bossKey: currentBossKey,
+      bossName: getBoss().name,
+      bossTag: getBoss().tag,
+      bossQuip: getBoss().quip,
       bloomed: G.bloomed,
       growth: G.growth,
       growthPct: Math.min(100, Math.floor(G.growth)),
@@ -900,12 +1330,22 @@
     el.personaTitle.textContent = result.title;
     el.personaTitle.classList.toggle("is-long", result.title.length >= 8);
     el.personaDesc.textContent = result.desc;
+    if (el.resultContext) {
+      el.resultContext.textContent = `花：${result.flowerName} · 老板：${result.bossName} / 17:59`;
+    }
+    if (el.resultBossLine) {
+      el.resultBossLine.textContent = `老板批注：${result.bossQuip}`;
+    }
     el.resultGrade.textContent = result.grade;
     el.quoteText.textContent = result.quote;
     el.statScore.textContent = result.score.toLocaleString("zh-CN");
     el.statTime.textContent = result.timeValue;
     el.statPerfect.textContent = `${result.perfects}`;
     el.statCaught.textContent = `${result.caught}`;
+    if (result.bloomed) {
+      markFlowerBloomed(currentFlowerKey);
+    }
+    updateCodexLabels();
     cardStyle = "botanical";
     cardDataUrls = Object.create(null);
     cardDataUrl = "";
@@ -916,8 +1356,7 @@
     saveDailyCount(shiftCount);
     el.shiftCount.textContent = `今日第 ${shiftCount} 盆`;
 
-    el.resultScreen.hidden = false;
-    requestAnimationFrame(() => el.resultScreen.classList.add(HR.screenOn));
+    showScreen(el.resultScreen);
     announce(`本局结束。你的工位人格是${result.title}。摸鱼值 ${result.score}。`);
   }
 
@@ -969,38 +1408,45 @@
   }
 
   function beginGame() {
+    if (G.phase === "playing" || G.phase === "ending") return;
     window.clearTimeout(toastTimer);
     window.clearTimeout(stampTimer);
     window.clearTimeout(caughtTimer);
+    currentFlowerKey = FLOWERS[selectedFlowerKey] ? selectedFlowerKey : "daisy";
+    selectedFlowerKey = currentFlowerKey;
+    if (!BOSSES[currentBossKey]) rollBoss();
+    safeStorageSet(STORAGE.flower, currentFlowerKey);
+    markFlowerSeen(currentFlowerKey);
+    updateCodexLabels();
+    applyProfileClasses();
     G = makeState();
     G.phase = "playing";
+    G.bossT = getBoss().config.firstQuiet;
+    G.warnTotal = getBoss().config.warnBase;
     result = null;
     cardStyle = "botanical";
     cardDataUrls = Object.create(null);
     cardDataUrl = "";
     updateCardStyleButtons();
-    el.resultScreen.classList.remove(HR.screenOn);
-    el.resultScreen.hidden = true;
-    el.cardScreen.classList.remove(HR.screenOn);
-    el.cardScreen.hidden = true;
-    el.startScreen.classList.remove(HR.screenOn);
-    window.setTimeout(() => {
-      el.startScreen.hidden = true;
-    }, 320);
+    hideScreen(el.resultScreen, 160);
+    hideScreen(el.cardScreen, 160);
+    hideScreen(el.setupScreen, 220);
+    hideScreen(el.startScreen, 220);
+    hideScreen(el.codexScreen, 120);
     resetVisuals();
+    applyProfileClasses();
     Sound.init();
     Sound.start();
-    showToast("按住屏幕，开始浇水", "", 1600);
+    showToast(`${getFlower().name} · ${getBoss().name}老板当值`, "", 1600);
     render();
     lastFrame = performance.now();
   }
 
   function retry() {
-    el.resultScreen.classList.remove(HR.screenOn);
+    hideScreen(el.resultScreen, 200);
     window.setTimeout(() => {
-      el.resultScreen.hidden = true;
-      beginGame();
-    }, 220);
+      openSetup();
+    }, 230);
   }
 
   function pointerDown(event) {
@@ -1027,6 +1473,10 @@
   }
 
   function keyDown(event) {
+    if (event.key === "Escape" && !el.codexScreen.hidden) {
+      closeCodex();
+      return;
+    }
     if (event.key === "Escape" && !el.cardScreen.hidden) {
       closeCard();
       return;
@@ -1217,7 +1667,13 @@
     if (window.AndroidBridge) {
       document.body.classList.add("android-app");
     }
+    currentFlowerKey = FLOWERS[currentFlowerKey] ? currentFlowerKey : "daisy";
+    selectedFlowerKey = currentFlowerKey;
+    applyProfileClasses();
+    fillFlowerIcons();
     resetVisuals();
+    renderSetup();
+    updateCodexLabels();
     updateMuteButton();
     el.shiftCount.textContent = shiftCount > 0 ? `今日第 ${shiftCount + 1} 盆` : "今日第 1 盆";
     el.resultDate.textContent = new Date().toLocaleDateString("zh-CN", {
@@ -1228,7 +1684,24 @@
 
     el.startBtn.addEventListener("click", () => {
       Sound.init();
+      openSetup();
+    });
+    el.startCodexBtn.addEventListener("click", openCodex);
+    el.setupStartBtn.addEventListener("click", () => {
+      Sound.init();
       beginGame();
+    });
+    el.setupBackBtn.addEventListener("click", backToStart);
+    el.setupCodexBtn.addEventListener("click", openCodex);
+    el.closeCodexBtn.addEventListener("click", closeCodex);
+    el.flowerOptions.forEach((option) => {
+      option.addEventListener("click", () => {
+        selectedFlowerKey = option.dataset.flower;
+        currentFlowerKey = selectedFlowerKey;
+        applyProfileClasses();
+        renderFlowerPicker();
+        renderBossPreview();
+      });
     });
     el.retryBtn.addEventListener("click", retry);
     el.cardBtn.addEventListener("click", openCard);
@@ -1261,6 +1734,9 @@
     el.cardScreen.addEventListener("pointerdown", (event) => {
       if (event.target === el.cardScreen && !el.cardScreen.hidden) closeCard();
     });
+    el.codexScreen.addEventListener("pointerdown", (event) => {
+      if (event.target === el.codexScreen && !el.codexScreen.hidden) closeCodex();
+    });
 
     lastFrame = performance.now();
     rafId = requestAnimationFrame(loop);
@@ -1268,7 +1744,21 @@
     window.__paidToBloom = {
       getState: () => ({ ...G }),
       getResult: () => result,
+      getProfile: () => ({
+        flower: currentFlowerKey,
+        boss: currentBossKey,
+        codex: codexCounts()
+      }),
       beginGame,
+      startWith: (flowerKey, bossKey) => {
+        if (!FLOWERS[flowerKey] || !BOSSES[bossKey]) return false;
+        selectedFlowerKey = flowerKey;
+        currentFlowerKey = flowerKey;
+        currentBossKey = bossKey;
+        applyProfileClasses();
+        beginGame();
+        return true;
+      },
       triggerBloom,
       endGame,
       setGrowth: (value) => {
