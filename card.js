@@ -22,6 +22,62 @@
   const SANS = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif';
   const MONO = '"Courier New", "SFMono-Regular", Consolas, monospace';
 
+  const POSTER_NOTES = {
+    daisy: {
+      bloomed: [
+        "小雏菊开得不动声色，像今天准点下班的你。",
+        "普通的一天，也值得一朵小花。",
+        "它没上过热搜，但它开得很好。"
+      ],
+      wilted: [
+        "小雏菊没开，可能也在等一个不用加班的下午。",
+        "土是湿的，花没开，人先麻了。",
+        "它把力气都用来撑过今天了。"
+      ]
+    },
+    sunflower: {
+      bloomed: [
+        "向日葵朝着显示器开了，今天唯一向着光的东西。",
+        "它没等太阳，自己开成了太阳。",
+        "老板回头的时候，花正好开给他看。"
+      ],
+      wilted: [
+        "向日葵没等到光，显示器太亮，工位太暗。",
+        "它一直朝着光，光在加班。",
+        "花盘低下去的时候，像极了下班前的你。"
+      ]
+    },
+    cactus: {
+      bloomed: [
+        "仙人掌开花了，带刺的人也会有一朵软的花。",
+        "它没怎么喝水，但今天还是开了一朵。",
+        "刺是给老板看的，花是给自己开的。"
+      ],
+      wilted: [
+        "仙人掌没开，它说没事，还能再撑一个季度。",
+        "带刺的花也会累，只是不说。",
+        "它把花开在了明天。"
+      ]
+    }
+  };
+
+  function getPosterCopy(result) {
+    const key = POSTER_NOTES[result.flowerKey] ? result.flowerKey : "daisy";
+    const bucket = result.bloomed ? "bloomed" : "wilted";
+    const notes = POSTER_NOTES[key][bucket];
+    const indexSeed = Math.abs(
+      (Number(result.score) || 0) +
+      (Number(result.perfects) || 0) * 7 +
+      (Number(result.caught) || 0) * 13 +
+      (Number(result.growthPct) || 0) * 3
+    );
+    return {
+      note: notes[indexSeed % notes.length],
+      label: result.bloomed ? "本盆记录 / 养开了" : "本盆记录 / 没开",
+      monitorLabel: result.bloomed ? "CASE NOTE / BLOOMED" : "CASE NOTE / NO BLOOM"
+    };
+  }
+
   let seed = 20261027;
   function random() {
     seed = (seed * 1664525 + 1013904223) % 4294967296;
@@ -817,6 +873,40 @@
     ctx.textBaseline = "alphabetic";
   }
 
+  function drawPosterNote(ctx, result, options = {}) {
+    const {
+      x = 82,
+      y = 1052,
+      maxWidth = 870,
+      monitor = false
+    } = options;
+    const copy = getPosterCopy(result);
+    const label = monitor ? copy.monitorLabel : copy.label;
+    const labelSize = monitor ? 9 : 10;
+    const baseNoteSize = monitor ? 16 : 18;
+
+    ctx.save();
+    ctx.fillStyle = C.coral;
+    ctx.fillRect(x - 6, y - 14, 3, 19);
+
+    setFont(ctx, labelSize, MONO, "700");
+    ctx.fillStyle = C.coralDark;
+    ctx.textAlign = "left";
+    drawSpacedText(ctx, label, x, y, monitor ? 0.4 : 0.6);
+    const labelWidth = ctx.measureText(label).width + (monitor ? 20 : 22);
+
+    let noteSize = baseNoteSize;
+    setFont(ctx, noteSize, monitor ? SANS : SERIF, "400");
+    const available = maxWidth - labelWidth;
+    while (noteSize > 13 && ctx.measureText(copy.note).width > available) {
+      noteSize -= 1;
+      setFont(ctx, noteSize, monitor ? SANS : SERIF, "400");
+    }
+    ctx.fillStyle = C.forest;
+    ctx.fillText(copy.note, x + labelWidth, y);
+    ctx.restore();
+  }
+
   function drawPersona(ctx, result) {
     setFont(ctx, 14, MONO, "700");
     ctx.fillStyle = C.coralDark;
@@ -908,7 +998,14 @@
     setFont(ctx, 11, MONO, "700");
     ctx.fillStyle = C.coralDark;
     ctx.textAlign = "right";
-    drawSpacedText(ctx, "WORK CAN WAIT. THE FLOWER CAN'T.", 1000, 1373, 1.1, "right");
+    drawSpacedText(
+      ctx,
+      result.bloomed ? "THE FLOWER MADE IT TO 18:00." : "THE FLOWER WILL TRY AGAIN TOMORROW.",
+      1000,
+      1373,
+      1.1,
+      "right"
+    );
   }
 
   function drawMonitorBackground(ctx) {
@@ -1399,6 +1496,8 @@
     ctx.fillStyle = "#4F5B4C";
     drawWrapped(ctx, result.desc, 82, 1092, 850, 30, "left");
 
+    drawPosterNote(ctx, result, { x: 84, y: 1145, maxWidth: 820, monitor: true });
+
     const stats = [
       ["摸鱼值", result.score.toLocaleString("zh-CN")],
       ["开花用时", result.timeValue],
@@ -1483,6 +1582,7 @@
       drawHeader(ctx, result);
       drawIllustration(ctx, result);
       drawPersona(ctx, result);
+      drawPosterNote(ctx, result, { x: 82, y: 1052, maxWidth: 870 });
       drawStats(ctx, result);
       drawQuote(ctx, result);
       drawFooter(ctx, result);
@@ -1495,9 +1595,11 @@
     const opener = result.bloomed
       ? "我在工位养开了一朵花，老板没发现。"
       : "我在工位养花，花没开，人先麻了。";
+    const copy = getPosterCopy(result);
     return [
       opener,
       `今天养的是「${result.flowerName}」，遇到的是「${result.bossName}」老板。`,
+      `本盆记录：${copy.note}`,
       `我的工位人格是「${result.title}」：完美切屏 ${result.perfects} 次，被抓包 ${result.caught} 次，摸鱼值 ${result.score.toLocaleString("zh-CN")}。`,
       result.quote,
       "#带薪养花 #打工人小游戏 #网页小游戏 #工位日常 #摸鱼文学"

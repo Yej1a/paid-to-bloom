@@ -1281,7 +1281,7 @@
       : Math.max(cfg.quietMin, cfg.quietBase - G.cycle * cfg.quietStep);
     if (G.act >= 2) quiet *= 0.8;
     else if (G.act === 1) quiet *= 0.92;
-    if (afterSafe) quiet = Math.min(quiet, 1.6);
+    if (afterSafe) quiet = Math.min(quiet, 1.2);
     G.bossT = quiet;
   }
 
@@ -1344,7 +1344,7 @@
     const boss = getBoss();
     G.boss = "safe";
     G.bossAction = "safe";
-    G.bossT = 2.8 + Math.random() * 1.5;
+    G.bossT = 1.8 + Math.random() * 0.7;
     G.pendingDouble = false;
     G.doubleReturn = false;
     G.safeLine = boss.safeLine;

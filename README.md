@@ -9,7 +9,7 @@
 **https://yej1a.github.io/paid-to-bloom/**
 
 iPhone：Safari 打开 → 分享 → 添加到主屏幕。  
-Android：直接浏览器打开，也可以下载 [Android APK v1.4](download/paid-to-bloom-v1.4.apk)。
+Android：直接浏览器打开，也可以下载 [Android APK v1.5](download/paid-to-bloom-v1.5.apk)。
 
 ## 玩法
 
@@ -17,7 +17,7 @@ Android：直接浏览器打开，也可以下载 [Android APK v1.4](download/pa
 
 老板不只回头：会假动作接电话、走开半秒又回马枪、接电话/续杯给安全窗口，也会探过隔板盯着你。一局分三幕，越到后面越刺激。
 
-花谱记录每盆花的「已认识 / 已养开」两枚章，见过就收录，养开才盖章。
+花谱记录每盆花的「已认识 / 已养开」两枚章，见过就收录，养开才盖章。战报会按成功 / 失败和三种花给不同的「本盆记录」文案。
 
 ## 本地运行
 
