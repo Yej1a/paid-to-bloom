@@ -427,6 +427,7 @@
       safeLine: BOSSES[currentBossKey].safeLine,
       pendingDouble: false,
       doubleReturn: false,
+      safeUsed: false,
       lastAction: "look",
       act: 0,
       cycle: 0,
@@ -1228,22 +1229,24 @@
   }
 
   function getAct() {
-    if (G.elapsed >= 20) return 2;
-    if (G.elapsed >= 10) return 1;
+    if (G.growth >= 66) return 2;
+    if (G.growth >= 33) return 1;
     return 0;
   }
 
   function updateAct() {
     if (G.phase !== "playing") return;
     const act = getAct();
-    if (act <= G.act) return;
+    if (act === G.act) return;
+    const rising = act > G.act;
     G.act = act;
+    if (!rising) return;
     if (act === 1) {
-      showToast("离下班 20 秒 · 老板开始来回走", "gold", 1400);
-      announce("离下班还有二十秒，老板开始来回走。");
+      showToast("花长到 1/3 · 老板开始来回走", "gold", 1400);
+      announce("花长到三分之一，老板开始来回走。");
     } else {
-      showToast("最后 10 秒 · 老板认真了", "gold", 1400);
-      announce("最后十秒，老板开始认真了。");
+      showToast("花长到 2/3 · 老板认真了", "gold", 1400);
+      announce("花长到三分之二，老板开始认真了。");
     }
     Sound.act();
   }
@@ -1252,15 +1255,19 @@
     const deck = BOSS_ACTIONS[currentBossKey] && BOSS_ACTIONS[currentBossKey][act];
     const fallback = [["look", 1]];
     const source = deck || fallback;
-    const filtered = source.filter(([action]) => action !== G.lastAction);
-    const pool = filtered.length ? filtered : source;
-    const total = pool.reduce((sum, [, weight]) => sum + weight, 0);
+    const filtered = source.filter(([action]) => (
+      action !== G.lastAction &&
+      !(action === "safe" && G.safeUsed)
+    ));
+    const pool = filtered.length ? filtered : source.filter(([action]) => !(action === "safe" && G.safeUsed));
+    const finalPool = pool.length ? pool : fallback;
+    const total = finalPool.reduce((sum, [, weight]) => sum + weight, 0);
     let roll = Math.random() * total;
-    for (const [action, weight] of pool) {
+    for (const [action, weight] of finalPool) {
       roll -= weight;
       if (roll <= 0) return action;
     }
-    return pool[pool.length - 1][0];
+    return finalPool[finalPool.length - 1][0];
   }
 
   function beginNextBossAction() {
@@ -1271,6 +1278,7 @@
 
   function beginBossQuiet(first = false, afterSafe = false) {
     const cfg = getBoss().config;
+    const pressure = clamp(G.growth / 100, 0, 1);
     G.boss = "away";
     G.bossAction = "look";
     G.pendingDouble = false;
@@ -1281,6 +1289,7 @@
       : Math.max(cfg.quietMin, cfg.quietBase - G.cycle * cfg.quietStep);
     if (G.act >= 2) quiet *= 0.8;
     else if (G.act === 1) quiet *= 0.92;
+    quiet *= 1 - 0.22 * pressure;
     if (afterSafe) quiet = Math.min(quiet, 1.2);
     G.bossT = quiet;
   }
@@ -1288,6 +1297,7 @@
   function beginWarning(action = "look") {
     const cfg = getBoss().config;
     const boss = getBoss();
+    const pressure = clamp(G.growth / 100, 0, 1);
     const isReturn = action === "double" && G.pendingDouble;
     G.cycle += 1;
     G.boss = "warning";
@@ -1308,6 +1318,9 @@
       perfect = 0.55;
     } else if (G.act >= 2) {
       warn *= 0.92;
+    }
+    if (action === "look" || action === "feint") {
+      warn *= 1 - 0.08 * pressure;
     }
     G.warnTotal = warn;
     G.bossT = warn;
@@ -1341,7 +1354,12 @@
   }
 
   function beginSafe() {
+    if (G.safeUsed) {
+      beginWarning("look");
+      return;
+    }
     const boss = getBoss();
+    G.safeUsed = true;
     G.boss = "safe";
     G.bossAction = "safe";
     G.bossT = 1.8 + Math.random() * 0.7;
@@ -1356,6 +1374,7 @@
 
   function beginWatching() {
     const cfg = getBoss().config;
+    const pressure = clamp(G.growth / 100, 0, 1);
     G.boss = "watching";
     G.bossT = Math.min(
       cfg.watchMax,
@@ -1363,6 +1382,7 @@
     );
     if (G.bossAction === "lean") G.bossT *= 1.2;
     else if (G.bossAction === "double") G.bossT *= 0.85;
+    G.bossT *= 1 + 0.18 * pressure;
     Sound.watch();
     if (G.holding) {
       catchPlayer();
