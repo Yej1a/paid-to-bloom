@@ -300,6 +300,7 @@
     bossBrow: $("#bossBrow"),
     warnMeter: $("#warnMeter"),
     warnFill: $("#warnFill"),
+    warnNote: $(".warn-note"),
     perfectZone: $(".perfect-zone"),
     perfectStamp: $("#perfectStamp"),
     toast: $("#toast"),
@@ -425,6 +426,7 @@
       warnTotal: BOSSES[currentBossKey].config.warnBase,
       bubbleLine: BOSSES[currentBossKey].bubble,
       safeLine: BOSSES[currentBossKey].safeLine,
+      safeTotal: 0,
       pendingDouble: false,
       doubleReturn: false,
       safeUsed: false,
@@ -1132,10 +1134,19 @@
     }
 
     const warning = G.boss === "warning";
-    const progress = warning ? clamp(1 - G.bossT / G.warnTotal, 0, 1) : 0;
+    const safe = G.boss === "safe";
+    const progress = warning
+      ? clamp(1 - G.bossT / G.warnTotal, 0, 1)
+      : safe
+        ? clamp(1 - G.bossT / Math.max(0.01, G.safeTotal), 0, 1)
+        : 0;
     el.warnFill.style.width = `${progress * 100}%`;
     el.warnFill.classList.toggle("is-perfect", warning && G.bossT <= G.perfectWindow);
     el.perfectZone.style.width = `${clamp(G.perfectWindow / Math.max(0.01, G.warnTotal), 0, 1) * 100}%`;
+    if (el.warnNote) {
+      const note = safe ? "安全窗口 · 可以浇水" : "最后红格松手 = 秒切";
+      if (el.warnNote.textContent !== note) el.warnNote.textContent = note;
+    }
   }
 
   function smoothstep(value) {
@@ -1290,7 +1301,7 @@
     if (G.act >= 2) quiet *= 0.8;
     else if (G.act === 1) quiet *= 0.92;
     quiet *= 1 - 0.22 * pressure;
-    if (afterSafe) quiet = Math.min(quiet, 1.2);
+    if (afterSafe) quiet = Math.min(quiet, 0.45);
     G.bossT = quiet;
   }
 
@@ -1363,6 +1374,7 @@
     G.boss = "safe";
     G.bossAction = "safe";
     G.bossT = 1.8 + Math.random() * 0.7;
+    G.safeTotal = G.bossT;
     G.pendingDouble = false;
     G.doubleReturn = false;
     G.safeLine = boss.safeLine;

@@ -549,8 +549,23 @@ button:focus-visible {
   border-color: var(--coral);
 }
 
-.boss-safe .warn-meter,
-.boss-safe .warn-note,
+.boss-safe .warn-meter {
+  display: block;
+}
+
+.boss-safe .warn-meter span {
+  background: var(--sage);
+}
+
+.boss-safe .warn-meter .perfect-zone {
+  display: none;
+}
+
+.boss-safe .warn-note {
+  display: block;
+  color: var(--forest-3);
+}
+
 .boss-feint .warn-meter,
 .boss-feint .warn-note,
 .boss-pending .warn-meter,
