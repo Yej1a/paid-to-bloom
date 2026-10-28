@@ -126,11 +126,11 @@ button:focus-visible {
   position: relative;
   z-index: 20;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 0 0 auto;
-  min-height: 64px;
+  min-height: 68px;
   padding: max(8px, env(safe-area-inset-top)) 15px 7px;
   background:
     linear-gradient(180deg, rgba(255, 252, 244, 0.7), transparent),
@@ -149,11 +149,15 @@ button:focus-visible {
 .brand-main {
   overflow: hidden;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.7px;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.brand-short {
+  display: none;
 }
 
 .brand-sub {
@@ -181,14 +185,14 @@ button:focus-visible {
 .timer-label {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 8px;
   letter-spacing: 1px;
 }
 
 .timer b {
-  min-width: 35px;
+  min-width: 40px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.3px;
 }
@@ -207,20 +211,22 @@ button:focus-visible {
 .hud-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-self: end;
+  gap: 6px;
 }
 
 .hearts {
   display: flex;
   align-items: center;
-  gap: 2px;
-  height: 26px;
+  justify-self: center;
+  gap: 3px;
+  height: 34px;
 }
 
 .heart {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   transform-origin: center;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
@@ -312,6 +318,7 @@ button:focus-visible {
   display: block;
   width: 100%;
   height: 100%;
+  transform-origin: 50% 58%;
 }
 
 .stage-shade {
@@ -435,7 +442,7 @@ button:focus-visible {
   gap: 5px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -481,6 +488,76 @@ button:focus-visible {
   box-shadow: 0 0 0 3px rgba(229, 107, 74, 0.22);
 }
 
+.boss-safe .boss-bubble,
+.boss-feint .boss-bubble,
+.boss-pending .boss-bubble {
+  opacity: 1;
+  transform: translateY(0) rotate(1.4deg) scale(1);
+}
+
+.boss-safe .boss-bubble {
+  border-color: var(--forest-3);
+  background: #f6f0da;
+  box-shadow: 4px 5px 0 rgba(78, 107, 76, 0.18);
+}
+
+.boss-safe .boss-bubble::after {
+  border-color: var(--forest-3);
+  background: #f6f0da;
+}
+
+.boss-safe .boss-bubble::before {
+  background: var(--sage-light);
+}
+
+.boss-safe .boss-line {
+  color: var(--forest-3);
+}
+
+.boss-safe .status-dot {
+  background: var(--sage);
+  box-shadow: 0 0 0 2px rgba(111, 143, 99, 0.2);
+}
+
+.boss-feint .boss-bubble {
+  border-color: var(--forest-3);
+}
+
+.boss-feint .boss-line {
+  color: var(--forest-3);
+}
+
+.boss-feint .status-dot {
+  background: var(--butter);
+  box-shadow: 0 0 0 2px rgba(242, 193, 78, 0.28);
+}
+
+.boss-pending .boss-bubble {
+  border-color: var(--coral);
+}
+
+.boss-pending .boss-line {
+  color: var(--coral-dark);
+}
+
+.boss-lean .boss-bubble {
+  border-color: var(--coral-dark);
+  box-shadow: 4px 5px 0 rgba(197, 78, 50, 0.24);
+}
+
+.boss-double .boss-bubble {
+  border-color: var(--coral);
+}
+
+.boss-safe .warn-meter,
+.boss-safe .warn-note,
+.boss-feint .warn-meter,
+.boss-feint .warn-note,
+.boss-pending .warn-meter,
+.boss-pending .warn-note {
+  display: none;
+}
+
 .warn-meter {
   position: relative;
   height: 6px;
@@ -516,7 +593,7 @@ button:focus-visible {
 .warn-note {
   margin-top: 4px;
   color: var(--ink-soft);
-  font-size: 7.5px;
+  font-size: 8.5px;
   letter-spacing: 0.15px;
 }
 
@@ -575,13 +652,13 @@ button:focus-visible {
   left: 50%;
   z-index: 18;
   max-width: calc(100% - 30px);
-  padding: 7px 13px;
+  padding: 8px 14px;
   border: 1.3px solid var(--forest);
   border-radius: 999px;
   background: var(--forest);
   color: var(--cream);
   box-shadow: 3px 3px 0 rgba(36, 56, 44, 0.16);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -624,7 +701,7 @@ button:focus-visible {
   background: rgba(250, 246, 234, 0.8);
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 6.5px;
+  font-size: 7.5px;
   letter-spacing: 0.2px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -701,6 +778,22 @@ button:focus-visible {
   transform: translateY(0);
 }
 
+.boss-feint .boss-head {
+  transform: translateY(-2px);
+}
+
+.boss-lean .boss-head {
+  transform: translateY(-24px);
+}
+
+.boss-double .boss-head {
+  transform: translateY(-8px);
+}
+
+.boss-pending .boss-head {
+  transform: translateY(58px);
+}
+
 .boss-turn {
   will-change: transform;
 }
@@ -765,6 +858,7 @@ button:focus-visible {
 
 .leaf {
   opacity: 0;
+  transform: scale(0.42);
   transform-box: fill-box;
   transform-origin: center;
   transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.9, 0.25, 1.2);
@@ -772,11 +866,15 @@ button:focus-visible {
 
 .leaf.on {
   opacity: 1;
+  transform: scale(1);
 }
 
 #budGroup {
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transform: scale(0.35);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.9, 0.25, 1.2);
 }
 
 #budGroup.on {
@@ -785,7 +883,10 @@ button:focus-visible {
 
 #plantFace {
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transform: scale(0.7);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.25, 1.2);
 }
 
 #plantFace.on {
@@ -820,6 +921,14 @@ button:focus-visible {
 
 .is-holding #plantSway {
   animation-duration: 1.45s;
+}
+
+.is-stage-up #plantSway {
+  animation: stage-pop 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.2);
+}
+
+.is-perfect .scene-art {
+  animation: perfect-zoom 0.48s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 #wateringCan {
@@ -893,7 +1002,7 @@ button:focus-visible {
 .growth-label {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 7.5px;
+  font-size: 9px;
   letter-spacing: 0.8px;
 }
 
@@ -901,24 +1010,24 @@ button:focus-visible {
   margin-left: 5px;
   color: var(--forest);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 17px;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
 }
 
 .stage-name {
-  padding: 1px 6px;
+  padding: 2px 8px;
   border: 1px solid rgba(36, 56, 44, 0.26);
   border-radius: 2px;
   background: rgba(250, 246, 234, 0.7);
-  font-size: 8.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 .growth-track {
   position: relative;
-  height: 9px;
+  height: 12px;
   border: 1.4px solid var(--forest);
   border-radius: 2px;
   background: rgba(36, 56, 44, 0.08);
@@ -949,9 +1058,9 @@ button:focus-visible {
   top: 50%;
   left: 0%;
   display: grid;
-  width: 18px;
-  height: 18px;
-  margin-left: -9px;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
   place-items: center;
   border: 1.2px solid var(--forest);
   border-radius: 50%;
@@ -962,8 +1071,8 @@ button:focus-visible {
 }
 
 .growth-marker svg {
-  width: 11px;
-  height: 11px;
+  width: 13px;
+  height: 13px;
   fill: var(--forest);
   stroke: var(--forest);
   stroke-width: 1.2;
@@ -974,9 +1083,9 @@ button:focus-visible {
 .stage-labels {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  margin-top: 4px;
+  margin-top: 5px;
   color: var(--ink-soft);
-  font-size: 7.5px;
+  font-size: 9px;
   letter-spacing: 0.6px;
 }
 
@@ -1035,14 +1144,14 @@ button:focus-visible {
 }
 
 .hold-copy b {
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.7px;
   line-height: 1.15;
 }
 
 .hold-copy small {
   color: var(--ink-soft);
-  font-size: 8.5px;
+  font-size: 9.5px;
   letter-spacing: 0.1px;
   line-height: 1.2;
   white-space: nowrap;
@@ -1651,7 +1760,9 @@ body.flower-cactus #cactusGrowth {
 .cactus-bud,
 .cactus-flower {
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.9, 0.25, 1.2);
 }
 
 .cactus-bud.on,
@@ -2034,6 +2145,19 @@ body.boss-patrol #bossCap {
   50% { transform: rotate(1.1deg); }
 }
 
+@keyframes stage-pop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.035) translateY(-5px); }
+  62% { transform: scale(0.99) translateY(1px); }
+  100% { transform: scale(1); }
+}
+
+@keyframes perfect-zoom {
+  0% { transform: scale(1); }
+  28% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
 @keyframes timer-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.04); }
@@ -2134,13 +2258,21 @@ body.boss-patrol #bossCap {
     letter-spacing: 0.65px;
   }
 
+  .brand-long {
+    display: none;
+  }
+
+  .brand-short {
+    display: inline;
+  }
+
   .brand-sub {
     display: none;
   }
 
   .heart {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
 
   .start-card,
@@ -2253,8 +2385,31 @@ body.boss-patrol #bossCap {
   }
 
   .heart {
-    width: 17px;
-    height: 17px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .hud-right {
+    gap: 4px;
+  }
+
+  .timer {
+    gap: 0;
+    padding: 5px 7px;
+  }
+
+  .timer-label {
+    display: none;
+  }
+
+  .timer b {
+    min-width: 38px;
+    font-size: 14px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
   }
 
   .card-preview img {

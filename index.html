@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="带薪养花">
   <meta name="application-name" content="带薪养花">
-  <meta name="app-build" content="20261028c">
+  <meta name="app-build" content="20261028e">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="带薪养花">
   <meta property="og:title" content="带薪养花 · 工位微园艺">
@@ -20,10 +20,10 @@
   <meta name="twitter:description" content="老板回头的 0.5 秒，我假装在做表。45 秒、单手可玩的工位微园艺小游戏。">
   <meta name="twitter:image" content="https://yej1a.github.io/paid-to-bloom/og-cover.png">
   <title>带薪养花 · 工位微园艺</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028c">
-  <link rel="manifest" href="manifest.webmanifest?v=20261028c">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261028c">
-  <link rel="stylesheet" href="styles.css?v=20261028c">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028e">
+  <link rel="manifest" href="manifest.webmanifest?v=20261028e">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261028e">
+  <link rel="stylesheet" href="styles.css?v=20261028e">
 </head>
 <body>
   <div class="desk-bg" aria-hidden="true"></div>
@@ -31,20 +31,20 @@
   <main class="app" id="app">
     <header class="hud" data-ui>
       <div class="brand">
-        <span class="brand-main">OFFICE BOTANY CLUB</span>
+        <span class="brand-main"><span class="brand-long">OFFICE BOTANY CLUB</span><span class="brand-short">OFFICE BOTANY</span></span>
         <span class="brand-sub">工位微园艺 · SHIFT No. 045</span>
       </div>
 
-      <div class="timer" id="timerBox" aria-label="剩余时间">
-        <span class="timer-label">SHIFT</span>
-        <b id="timer">00:45</b>
+      <div class="hearts" id="hearts" aria-label="剩余三颗心">
+        <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+        <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+        <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
       </div>
 
       <div class="hud-right">
-        <div class="hearts" id="hearts" aria-label="剩余三颗心">
-          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
-          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
-          <span class="heart"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 28S4 20.4 4 11.7C4 7 7.6 4 11.6 4c2.2 0 4.2 1.1 5.4 2.9C18.2 5.1 20.2 4 22.4 4 26.4 4 30 7 30 11.7 30 20.4 16 28 16 28Z"/><path d="M16 8.8c-1.7-2.1-3.6-2.9-5.2-2.1-1.8.9-2.1 3.2-.7 5.1 1.6 2.2 5.9 5.4 5.9 5.4"/></svg></span>
+        <div class="timer" id="timerBox" aria-label="剩余时间">
+          <span class="timer-label">SHIFT</span>
+          <b id="timer">00:45</b>
         </div>
         <button class="icon-btn" id="muteBtn" type="button" aria-label="关闭声音" title="声音开关">
           <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path class="sound-wave" d="M16 8.2c1.3 1.9 1.3 5.7 0 7.6M18.8 5.7c2.4 3.4 2.4 9.2 0 12.6"/></svg>
@@ -305,6 +305,7 @@
                 <path d="M446 654c-29 19-42 45-38 70 4 26 20 42 39 42 20 0 35-16 39-42 4-25-9-51-40-70Z" fill="#8FA77D" stroke="#24382C" stroke-width="2.4"/>
                 <path d="M446 664v92" stroke="#4E6B4C" stroke-width="1.6" opacity=".7"/>
                 <path d="M410 706c-16 2-28 12-31 26 15 4 28-1 36-12" fill="#6F8F63" stroke="#24382C" stroke-width="1.6"/>
+                <ellipse cx="446" cy="666" rx="15" ry="11" fill="#E59A9A" stroke="#24382C" stroke-width="1.4"/>
               </g>
 
               <g id="plantFace">
@@ -644,7 +645,7 @@
     <div class="sr-only" id="srStatus" aria-live="assertive"></div>
   </main>
 
-  <script src="game.js?v=20261028c" defer></script>
-  <script src="card.js?v=20261028c" defer></script>
+  <script src="game.js?v=20261028e" defer></script>
+  <script src="card.js?v=20261028e" defer></script>
 </body>
 </html>

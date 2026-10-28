@@ -43,6 +43,10 @@
       name: "在吗型",
       tag: "高频 · 短盯",
       bubble: "在吗？",
+      feintLine: "电话。",
+      safeLine: "接个电话。",
+      leanLine: "过来一下。",
+      doubleLine: "还没走。",
       quip: "在吗？这个花比报表长得快。",
       config: {
         firstQuiet: 4.0,
@@ -63,6 +67,10 @@
       name: "咖啡型",
       tag: "长静默 · 长盯",
       bubble: "续杯。",
+      feintLine: "咖啡好了。",
+      safeLine: "出去续杯。",
+      leanLine: "这表谁做的？",
+      doubleLine: "杯还没洗。",
       quip: "出去续杯，回来续命。你的土比我咖啡还湿。",
       config: {
         firstQuiet: 4.8,
@@ -83,6 +91,10 @@
       name: "巡查型",
       tag: "慢转头 · 长预警",
       bubble: "路过。",
+      feintLine: "有人叫。",
+      safeLine: "被叫走了。",
+      leanLine: "我看看。",
+      doubleLine: "再巡一遍。",
       quip: "只是路过，顺便看看你的花。",
       config: {
         firstQuiet: 4.4,
@@ -102,6 +114,21 @@
 
   const FLOWER_KEYS = Object.keys(FLOWERS);
   const BOSS_KEYS = Object.keys(BOSSES);
+
+  const BOSS_ACTIONS = {
+    inquiry: {
+      1: [["look", 0.58], ["feint", 0.3], ["safe", 0.12]],
+      2: [["look", 0.42], ["feint", 0.2], ["double", 0.2], ["lean", 0.1], ["safe", 0.08]]
+    },
+    coffee: {
+      1: [["look", 0.45], ["safe", 0.35], ["feint", 0.2]],
+      2: [["look", 0.32], ["lean", 0.26], ["double", 0.17], ["safe", 0.18], ["feint", 0.07]]
+    },
+    patrol: {
+      1: [["look", 0.42], ["double", 0.28], ["feint", 0.2], ["safe", 0.1]],
+      2: [["look", 0.3], ["double", 0.32], ["lean", 0.26], ["feint", 0.12]]
+    }
+  };
 
   const PERSONAS = {
     god: {
@@ -334,6 +361,7 @@
     screenFlash: $("#screenFlash"),
     caughtFlash: $("#caughtFlash"),
     plantGrowth: $("#plantGrowth"),
+    plantSway: $("#plantSway"),
     leaf1: $("#leaf1"),
     leaf2: $("#leaf2"),
     leaf3: $("#leaf3"),
@@ -386,11 +414,21 @@
       caught: 0,
       perfects: 0,
       perfectThisWarning: false,
+      perfectWindow: CONFIG.perfectWindow,
+      perfectChain: 0,
+      bestChain: 0,
       holding: false,
       pointerId: null,
       boss: "away",
+      bossAction: "look",
       bossT: BOSSES[currentBossKey].config.firstQuiet,
       warnTotal: BOSSES[currentBossKey].config.warnBase,
+      bubbleLine: BOSSES[currentBossKey].bubble,
+      safeLine: BOSSES[currentBossKey].safeLine,
+      pendingDouble: false,
+      doubleReturn: false,
+      lastAction: "look",
+      act: 0,
       cycle: 0,
       endReason: null,
       endTimer: 0,
@@ -492,9 +530,35 @@
       this.tone(659.25, 0.13, { type: "triangle", gain: 0.03, delay: 0.08 });
     },
 
-    warn() {
-      this.tone(880, 0.08, { type: "sine", gain: 0.055 });
-      this.tone(660, 0.12, { type: "sine", gain: 0.045, delay: 0.11 });
+    warn(action = "look") {
+      const base = action === "double" ? 1046.5 : action === "lean" ? 740 : 880;
+      this.tone(base, 0.08, { type: "sine", gain: 0.055 });
+      this.tone(base * 0.75, 0.12, { type: "sine", gain: 0.045, delay: 0.11 });
+      if (action === "lean") {
+        this.tone(196, 0.18, { type: "triangle", gain: 0.028, delay: 0.2, endFreq: 146 });
+      }
+    },
+
+    double() {
+      this.tone(1046.5, 0.07, { type: "square", gain: 0.04 });
+      this.tone(880, 0.07, { type: "square", gain: 0.035, delay: 0.08 });
+      this.tone(1046.5, 0.1, { type: "square", gain: 0.03, delay: 0.16 });
+    },
+
+    feint() {
+      this.tone(760, 0.045, { type: "square", gain: 0.025 });
+      this.tone(760, 0.045, { type: "square", gain: 0.025, delay: 0.09 });
+      this.tone(520, 0.12, { type: "sine", gain: 0.02, delay: 0.18 });
+    },
+
+    safe() {
+      this.tone(392, 0.12, { type: "sine", gain: 0.03 });
+      this.tone(587.33, 0.18, { type: "sine", gain: 0.025, delay: 0.08 });
+    },
+
+    act() {
+      this.tone(523.25, 0.08, { type: "triangle", gain: 0.025 });
+      this.tone(783.99, 0.1, { type: "triangle", gain: 0.02, delay: 0.08 });
     },
 
     watch() {
@@ -505,10 +569,11 @@
       this.tone(520, 0.045, { type: "square", gain: 0.018, endFreq: 390 });
     },
 
-    perfect() {
-      this.tone(659.25, 0.1, { type: "triangle", gain: 0.065 });
-      this.tone(880, 0.12, { type: "triangle", gain: 0.055, delay: 0.07 });
-      this.tone(1174.66, 0.18, { type: "sine", gain: 0.045, delay: 0.14 });
+    perfect(chain = 1) {
+      const lift = Math.min(4, Math.max(0, chain - 1)) * 60;
+      this.tone(659.25 + lift, 0.1, { type: "triangle", gain: 0.065 });
+      this.tone(880 + lift, 0.12, { type: "triangle", gain: 0.055, delay: 0.07 });
+      this.tone(1174.66 + lift, 0.18, { type: "sine", gain: 0.045, delay: 0.14 });
     },
 
     caught() {
@@ -609,7 +674,11 @@
     window.setTimeout(() => el.screenFlash.classList.remove(HR.screenFlash), 360);
   }
 
-  function showStamp() {
+  function showStamp(chain = 1) {
+    const title = el.perfectStamp.querySelector("b");
+    const score = el.perfectStamp.querySelector(".stamp-score");
+    if (title) title.textContent = chain > 1 ? `秒切 x${chain}` : "秒切！";
+    if (score) score.textContent = chain > 1 ? `连击 · 演技 +180` : "演技 +180";
     window.clearTimeout(stampTimer);
     el.perfectStamp.classList.remove(HR.stamp);
     void el.perfectStamp.offsetWidth;
@@ -857,12 +926,20 @@
     const active = G.phase === "playing" || G.phase === "ending";
     const warning = G.boss === "warning" && active;
     const watching = G.boss === "watching" && active;
+    const safe = G.boss === "safe" && active;
+    const feint = G.boss === "feint" && active;
+    const pending = G.boss === "leaving" && G.pendingDouble && active;
     const locked = active && (
       watching ||
-      (G.boss === "warning" && G.bossT <= CONFIG.perfectWindow)
+      (warning && G.bossT <= G.perfectWindow)
     );
     body.classList.toggle("boss-warning", warning);
     body.classList.toggle("boss-watching", watching);
+    body.classList.toggle("boss-safe", safe);
+    body.classList.toggle("boss-feint", feint);
+    body.classList.toggle("boss-pending", pending);
+    body.classList.toggle("boss-lean", warning && G.bossAction === "lean");
+    body.classList.toggle("boss-double", warning && G.bossAction === "double");
     body.classList.toggle("boss-locked", locked);
     el.app.classList.toggle("is-holding", G.holding);
   }
@@ -905,7 +982,7 @@
 
   function renderPlant(growth) {
     const normalized = clamp(growth / 100, 0, 1);
-    const scale = 0.44 + 0.56 * Math.pow(normalized, 0.78);
+    const scale = 0.36 + 0.78 * Math.pow(normalized, 0.68);
     const transform = `translate(450 992) scale(${scale.toFixed(4)}) translate(-450 -992)`;
     el.plantGrowth.setAttribute("transform", transform);
     if (el.cactusGrowth) el.cactusGrowth.setAttribute("transform", transform);
@@ -918,21 +995,29 @@
     const budOn = growth >= 52;
     el.budGroup.classList.toggle(HR.leaf, budOn);
     el.budGroup.style.opacity = growth >= 84 ? String(clamp((88 - growth) / 4, 0, 1)) : "";
+    const budScale = 0.72 + 0.38 * clamp((growth - 52) / 34, 0, 1);
+    el.budGroup.style.transform = `scale(${budScale.toFixed(3)})`;
 
     el.sproutFace.classList.toggle(HR.leaf, growth < 48);
-    el.plantFace.classList.toggle(HR.leaf, growth >= 50);
+    el.plantFace.classList.toggle(HR.leaf, growth >= 64);
     el.flowerPetals.classList.toggle(HR.leaf, growth >= 82);
 
     if (el.cactusBud) el.cactusBud.classList.toggle(HR.leaf, growth >= 50 && growth < 82);
     if (el.cactusFlower) el.cactusFlower.classList.toggle(HR.leaf, growth >= 82);
 
     const bloom = clamp((growth - 82) / 18, 0, 1);
-    const flowerScale = currentFlowerKey === "sunflower" ? 1.18 : 1;
-    const petalScale = (bloom > 0 ? 0.16 + 0.84 * easeOutCubic(bloom) : 0.16) * flowerScale;
+    const flowerScale = currentFlowerKey === "sunflower" ? 1.08 : 1;
+    const petalScale = (0.1 + 1.2 * easeOutCubic(bloom)) * flowerScale;
     el.flowerPetals.setAttribute(
       "transform",
       `translate(446 710) scale(${petalScale.toFixed(4)}) translate(-446 -710)`
     );
+
+    const faceScale = 0.62 + 0.58 * easeOutCubic(clamp((growth - 48) / 52, 0, 1));
+    el.plantFace.style.transform = `scale(${faceScale.toFixed(3)})`;
+    if (el.cactusFlower) {
+      el.cactusFlower.style.transform = `scale(${(1 + 0.24 * bloom).toFixed(3)})`;
+    }
 
     const pct = growth >= 100 ? 100 : Math.floor(growth);
     el.growthPct.textContent = `${pct}%`;
@@ -964,6 +1049,10 @@
         strong = "停手，别动";
         small = "老板正在看你";
         state = "danger";
+      } else if (G.boss === "leaving" && G.pendingDouble) {
+        strong = "还没走，先别动";
+        small = "老板只是转了个身";
+        state = "danger";
       } else if (G.boss === "warning") {
         if (!G.holding) {
           strong = "已切回 Excel";
@@ -972,15 +1061,25 @@
           strong = "松手，别贪";
           small = "这一轮秒切已经拿到了";
           state = "danger";
-        } else if (G.bossT <= CONFIG.perfectWindow) {
-          strong = "松手！秒切";
-          small = "最后 0.5 秒 · 演技 +180";
+        } else if (G.bossT <= G.perfectWindow) {
+          strong = G.bossAction === "lean" ? "贴脸秒切！" : "松手！秒切";
+          small = `最后 ${G.perfectWindow.toFixed(1)} 秒 · 演技 +180`;
           state = "perfect";
         } else {
-          strong = "老板要回头了";
+          strong = G.bossAction === "double"
+            ? "又回来了"
+            : G.bossAction === "lean" ? "老板探身了" : "老板要回头了";
           small = "现在松手，切回 Excel";
           state = "danger";
         }
+      } else if (G.boss === "safe") {
+        strong = G.holding ? "老板不在 · 多浇一点" : "安全窗口 · 赶紧浇";
+        small = "接电话 / 续杯的时间，不用切屏";
+        state = G.holding ? "holding" : "";
+      } else if (G.boss === "feint") {
+        strong = G.holding ? "老板接电话 · 继续浇" : "老板接电话 · 可以贪";
+        small = "红条收回去，这次是假动作";
+        state = G.holding ? "holding" : "";
       } else if (G.holding) {
         strong = "正在浇水";
         small = "按住不放，花长得更快";
@@ -1006,6 +1105,9 @@
     let text = "EXCEL · Q4_方案_最终版_真的最终.xlsx";
     if (G.phase === "playing" || G.phase === "ending") {
       if (G.boss === "watching") text = "EXCEL · 光标已冻结";
+      else if (G.boss === "safe") text = "老板不在 · 可以贪水";
+      else if (G.boss === "feint") text = "EXCEL · 老板接电话";
+      else if (G.boss === "leaving" && G.pendingDouble) text = "EXCEL · 他还没走";
       else if (G.holding) text = "摸鱼模式 · 正在浇灌 Q4";
       else if (G.boss === "warning") text = "EXCEL · 已按 Ctrl+S";
     }
@@ -1016,18 +1118,23 @@
   }
 
   function updateBossBubble() {
-    if (G.boss === "warning") {
-      el.bossLine.textContent = getBoss().bubble || "在吗？";
-    } else if (G.boss === "watching") {
-      el.bossLine.textContent = "……";
+    const bubbleVisible =
+      G.boss === "warning" ||
+      G.boss === "watching" ||
+      G.boss === "feint" ||
+      G.boss === "safe" ||
+      (G.boss === "leaving" && G.pendingDouble);
+    if (bubbleVisible) {
+      el.bossLine.textContent = G.boss === "watching" ? "……" : (G.bubbleLine || getBoss().bubble);
     } else {
-      el.bossLine.textContent = getBoss().bubble || "在吗？";
+      el.bossLine.textContent = G.bubbleLine || getBoss().bubble;
     }
 
-    const progress = G.boss === "warning" ? clamp(1 - G.bossT / G.warnTotal, 0, 1) : 1;
+    const warning = G.boss === "warning";
+    const progress = warning ? clamp(1 - G.bossT / G.warnTotal, 0, 1) : 0;
     el.warnFill.style.width = `${progress * 100}%`;
-    el.warnFill.classList.toggle("is-perfect", G.boss === "warning" && G.bossT <= CONFIG.perfectWindow);
-    el.perfectZone.style.width = `${clamp(CONFIG.perfectWindow / G.warnTotal, 0, 1) * 100}%`;
+    el.warnFill.classList.toggle("is-perfect", warning && G.bossT <= G.perfectWindow);
+    el.perfectZone.style.width = `${clamp(G.perfectWindow / Math.max(0.01, G.warnTotal), 0, 1) * 100}%`;
   }
 
   function smoothstep(value) {
@@ -1036,6 +1143,15 @@
   }
 
   function updateBossTurn() {
+    if (G.boss === "feint") {
+      el.bossTurn.setAttribute("transform", "translate(11 0) rotate(4 804 660)");
+      el.bossPupil.style.transform = "translateX(22px) scale(0.9)";
+      el.bossEye.style.transform = "scale(0.96)";
+      el.bossLid.style.transform = "translateY(2px)";
+      el.bossBrow.style.transform = "translateY(1px)";
+      return;
+    }
+
     if (G.boss !== "warning" && G.boss !== "watching") {
       el.bossTurn.removeAttribute("transform");
       el.bossEye.style.transform = "";
@@ -1055,17 +1171,18 @@
     }
 
     const warningProgress = clamp(1 - G.bossT / G.warnTotal, 0, 1);
-    const perfectStart = clamp(1 - CONFIG.perfectWindow / G.warnTotal, 0.2, 0.92);
+    const perfectStart = clamp(1 - G.perfectWindow / G.warnTotal, 0.2, 0.92);
     const delayed = clamp((warningProgress - 0.06) / Math.max(0.001, perfectStart - 0.06), 0, 1);
     const turn = smoothstep(delayed);
+    const intensity = G.bossAction === "lean" ? 1.18 : G.bossAction === "double" ? 1.08 : 1;
 
-    const headX = 4 - 10 * turn;
-    const headRotate = 6 - 8 * turn;
-    const pupilX = 27 - 39 * turn;
+    const headX = 4 - 11 * turn * intensity;
+    const headRotate = 6 - 9 * turn * intensity;
+    const pupilX = 27 - 44 * turn * intensity;
     const pupilScale = 0.9 - 0.04 * turn;
-    const eyeScale = 0.96 + 0.1 * turn;
+    const eyeScale = 0.96 + 0.13 * turn;
     const lidY = 10 * (1 - turn);
-    const browY = 4 - 8 * turn;
+    const browY = 4 - 9 * turn;
 
     el.bossTurn.setAttribute(
       "transform",
@@ -1093,38 +1210,148 @@
     G.growth = clamp(G.growth + amount, 0, 100);
     const afterStage = stageForGrowth(G.growth);
     if (afterStage !== beforeStage && G.growth < 100) {
-      if (afterStage === "长叶" || afterStage === "花苞") {
-        Sound.stageUp();
-        const message = afterStage === "花苞"
-          ? "结了一个小花苞"
-          : currentFlowerKey === "cactus" ? "仙人掌长高了一点" : "长出了第一片叶子";
-        showToast(message, "", 1000);
-      }
+      Sound.stageUp();
+      el.app.classList.remove("is-stage-up");
+      void el.app.offsetWidth;
+      el.app.classList.add("is-stage-up");
+      window.setTimeout(() => el.app.classList.remove("is-stage-up"), 560);
+      const message = afterStage === "花苞"
+        ? "花苞鼓起来了"
+        : afterStage === "开花"
+          ? "花瓣要打开了"
+          : currentFlowerKey === "cactus" ? "仙人掌长高了一点" : "长出了新叶子";
+      showToast(message, "gold", 1100);
     }
     if (G.growth >= 100 && G.phase === "playing") {
       triggerBloom();
     }
   }
 
-  function beginBossQuiet(first = false) {
-    const cfg = getBoss().config;
-    G.boss = "away";
-    if (first) {
-      G.bossT = cfg.firstQuiet;
-    } else {
-      G.bossT = Math.max(cfg.quietMin, cfg.quietBase - G.cycle * cfg.quietStep);
-    }
+  function getAct() {
+    if (G.elapsed >= 30) return 2;
+    if (G.elapsed >= 15) return 1;
+    return 0;
   }
 
-  function beginWarning() {
+  function updateAct() {
+    if (G.phase !== "playing") return;
+    const act = getAct();
+    if (act <= G.act) return;
+    G.act = act;
+    if (act === 1) {
+      showToast("离下班 30 秒 · 老板开始来回走", "gold", 1600);
+      announce("离下班还有三十秒，老板开始来回走。");
+    } else {
+      showToast("最后 15 秒 · 老板认真了", "gold", 1600);
+      announce("最后十五秒，老板开始认真了。");
+    }
+    Sound.act();
+  }
+
+  function chooseBossAction(act) {
+    const deck = BOSS_ACTIONS[currentBossKey] && BOSS_ACTIONS[currentBossKey][act];
+    const fallback = [["look", 1]];
+    const source = deck || fallback;
+    const filtered = source.filter(([action]) => action !== G.lastAction);
+    const pool = filtered.length ? filtered : source;
+    const total = pool.reduce((sum, [, weight]) => sum + weight, 0);
+    let roll = Math.random() * total;
+    for (const [action, weight] of pool) {
+      roll -= weight;
+      if (roll <= 0) return action;
+    }
+    return pool[pool.length - 1][0];
+  }
+
+  function beginNextBossAction() {
+    const action = G.act === 0 ? "look" : chooseBossAction(G.act);
+    if (action === "safe") beginSafe();
+    else beginWarning(action);
+  }
+
+  function beginBossQuiet(first = false, afterSafe = false) {
     const cfg = getBoss().config;
+    G.boss = "away";
+    G.bossAction = "look";
+    G.pendingDouble = false;
+    G.doubleReturn = false;
+    G.bubbleLine = getBoss().bubble;
+    let quiet = first
+      ? cfg.firstQuiet
+      : Math.max(cfg.quietMin, cfg.quietBase - G.cycle * cfg.quietStep);
+    if (G.act >= 2) quiet *= 0.8;
+    else if (G.act === 1) quiet *= 0.92;
+    if (afterSafe) quiet = Math.min(quiet, 1.6);
+    G.bossT = quiet;
+  }
+
+  function beginWarning(action = "look") {
+    const cfg = getBoss().config;
+    const boss = getBoss();
+    const isReturn = action === "double" && G.pendingDouble;
     G.cycle += 1;
     G.boss = "warning";
+    G.bossAction = action;
+    G.pendingDouble = false;
+    G.doubleReturn = isReturn;
     G.perfectThisWarning = false;
-    G.warnTotal = Math.max(cfg.warnMin, cfg.warnBase - (G.cycle - 1) * cfg.warnStep);
-    G.bossT = G.warnTotal;
-    Sound.warn();
-    announce("老板要回头了，准备松手。");
+    let warn = Math.max(cfg.warnMin, cfg.warnBase - (G.cycle - 1) * cfg.warnStep);
+    let perfect = CONFIG.perfectWindow;
+    if (action === "lean") {
+      warn = Math.max(1.65, warn * 1.35 + 0.15);
+      perfect = 0.7;
+    } else if (action === "double") {
+      warn = Math.max(0.82, warn * 0.62);
+      perfect = 0.4;
+    } else if (action === "feint") {
+      warn *= 1.03;
+      perfect = 0.55;
+    } else if (G.act >= 2) {
+      warn *= 0.92;
+    }
+    G.warnTotal = warn;
+    G.bossT = warn;
+    G.perfectWindow = perfect;
+    G.bubbleLine = action === "feint"
+      ? boss.feintLine
+      : action === "lean"
+        ? boss.leanLine
+        : action === "double"
+          ? boss.doubleLine
+          : boss.bubble;
+    G.lastAction = action;
+    if (action === "double") Sound.double();
+    else Sound.warn(action);
+    announce(
+      action === "double"
+        ? "老板又回来了，先别浇水。"
+        : action === "lean"
+          ? "老板探身过来了，准备松手。"
+          : "老板要回头了，准备松手。"
+    );
+  }
+
+  function beginFeintBreak() {
+    if (G.boss !== "warning") return;
+    G.boss = "feint";
+    G.bossT = 0.75;
+    G.bubbleLine = getBoss().feintLine;
+    Sound.feint();
+    announce("老板接电话了，暂时安全。");
+  }
+
+  function beginSafe() {
+    const boss = getBoss();
+    G.boss = "safe";
+    G.bossAction = "safe";
+    G.bossT = 2.8 + Math.random() * 1.5;
+    G.pendingDouble = false;
+    G.doubleReturn = false;
+    G.safeLine = boss.safeLine;
+    G.bubbleLine = boss.safeLine;
+    G.lastAction = "safe";
+    Sound.safe();
+    announce("老板暂时离开，可以放心浇水。");
   }
 
   function beginWatching() {
@@ -1134,6 +1361,8 @@
       cfg.watchMax,
       cfg.watchBase + Math.max(0, G.cycle - 1) * cfg.watchStep
     );
+    if (G.bossAction === "lean") G.bossT *= 1.2;
+    else if (G.bossAction === "double") G.bossT *= 0.85;
     Sound.watch();
     if (G.holding) {
       catchPlayer();
@@ -1143,21 +1372,40 @@
   }
 
   function beginLeaving() {
+    const isDouble = G.bossAction === "double" && !G.doubleReturn;
     G.boss = "leaving";
-    G.bossT = getBoss().config.leaveBase;
+    G.pendingDouble = isDouble;
+    G.bossT = isDouble ? 0.34 : getBoss().config.leaveBase;
+    if (isDouble) G.bubbleLine = getBoss().doubleLine;
   }
 
   function updateBoss(dt) {
     G.bossT -= dt;
+    if (
+      G.boss === "warning" &&
+      G.bossAction === "feint" &&
+      G.bossT <= G.warnTotal * 0.55
+    ) {
+      beginFeintBreak();
+      return;
+    }
     if (G.bossT > 0) return;
     if (G.boss === "away") {
-      beginWarning();
+      beginNextBossAction();
     } else if (G.boss === "warning") {
       beginWatching();
     } else if (G.boss === "watching") {
       beginLeaving();
+    } else if (G.boss === "feint") {
+      beginLeaving();
+    } else if (G.boss === "safe") {
+      beginBossQuiet(false, true);
     } else if (G.boss === "leaving") {
-      beginBossQuiet();
+      if (G.pendingDouble) {
+        beginWarning("double");
+      } else {
+        beginBossQuiet();
+      }
     }
   }
 
@@ -1198,15 +1446,22 @@
     flashExcel();
     Sound.release();
 
-    if (wasWarning && remaining > 0 && remaining <= CONFIG.perfectWindow && !G.perfectThisWarning) {
+    if (wasWarning && remaining > 0 && remaining <= G.perfectWindow && !G.perfectThisWarning) {
       G.perfectThisWarning = true;
       G.perfects += 1;
-      showStamp();
-      Sound.perfect();
-      announce("完美切屏，演技加一百八十。");
+      G.perfectChain += 1;
+      G.bestChain = Math.max(G.bestChain, G.perfectChain);
+      showStamp(G.perfectChain);
+      Sound.perfect(G.perfectChain);
+      announce(G.perfectChain > 1
+        ? `完美连击 ${G.perfectChain} 次，演技加一百八十。`
+        : "完美切屏，演技加一百八十。");
       el.app.classList.add("is-perfect");
       window.setTimeout(() => el.app.classList.remove("is-perfect"), 700);
-      changeGrowth(CONFIG.perfectGrowth);
+      const bonus = G.bossAction === "lean" ? CONFIG.perfectGrowth + 1 : CONFIG.perfectGrowth;
+      changeGrowth(bonus);
+    } else if (wasWarning) {
+      G.perfectChain = 0;
     }
 
     render();
@@ -1218,6 +1473,7 @@
     Sound.waterOff();
     G.hearts -= 1;
     G.caught += 1;
+    G.perfectChain = 0;
     G.growth = Math.max(0, G.growth - CONFIG.growthPenalty);
     setBodyState();
     el.app.classList.remove("is-holding");
@@ -1373,6 +1629,7 @@
         changeGrowth(dt * speed);
       }
 
+      updateAct();
       if (G.phase === "playing") updateBoss(dt);
 
       if (G.timeLeft <= 0 && G.phase === "playing") {
@@ -1389,7 +1646,18 @@
 
   function resetVisuals() {
     appClasses.forEach((className) => el.app.classList.remove(className));
-    document.body.classList.remove("boss-warning", "boss-watching", "boss-locked", "is-caught");
+    el.app.classList.remove("is-stage-up");
+    document.body.classList.remove(
+      "boss-warning",
+      "boss-watching",
+      "boss-safe",
+      "boss-feint",
+      "boss-pending",
+      "boss-lean",
+      "boss-double",
+      "boss-locked",
+      "is-caught"
+    );
     el.timerBox.classList.remove(HR.timerUrgent);
     el.holdHint.classList.remove(HR.holdDanger, HR.holdPerfect);
     el.toast.classList.remove(HR.toast);
@@ -1757,6 +2025,13 @@
         currentBossKey = bossKey;
         applyProfileClasses();
         beginGame();
+        return true;
+      },
+      forceAction: (action) => {
+        if (!["look", "feint", "safe", "double", "lean"].includes(action)) return false;
+        if (G.phase !== "playing") return false;
+        if (action === "safe") beginSafe();
+        else beginWarning(action);
         return true;
       },
       triggerBloom,
